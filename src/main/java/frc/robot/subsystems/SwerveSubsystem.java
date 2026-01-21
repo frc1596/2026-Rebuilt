@@ -6,7 +6,9 @@ import org.deceivers.swerve.SwerveModuleV3;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.CANcoder;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
 
@@ -38,10 +40,22 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class SwerveSubsystem extends SubsystemBase {
-  private final SparkMax mDriveMotor1 = new SparkMax(2, MotorType.kBrushless);
-  private final SparkMax mDriveMotor2 = new SparkMax(4, MotorType.kBrushless);
-  private final SparkMax mDriveMotor3 = new SparkMax(6, MotorType.kBrushless);
-  private final SparkMax mDriveMotor4 = new SparkMax(8, MotorType.kBrushless);
+  // private final SparkMax mDriveMotor1 = new SparkMax(2, MotorType.kBrushless);
+  // private final SparkMax mDriveMotor2 = new SparkMax(4, MotorType.kBrushless);
+  // private final SparkMax mDriveMotor3 = new SparkMax(6, MotorType.kBrushless);
+  // private final SparkMax mDriveMotor4 = new SparkMax(8, MotorType.kBrushless);
+
+  private final TalonFX mDriveMotor1 = new TalonFX(2);
+  private final TalonFX mDriveMotor2 = new TalonFX(4);
+  private final TalonFX mDriveMotor3 = new TalonFX(6);
+  private final TalonFX mDriveMotor4 = new TalonFX(8);
+  
+  TalonFXConfiguration driveConfig = new TalonFXConfiguration();
+
+  mDriveMotor1.getConfigurator().apply(driveConfig);
+  mDriveMotor2.getConfigurator().apply(driveConfig);
+  mDriveMotor3.getConfigurator().apply(driveConfig);
+  mDriveMotor4.getConfigurator().apply(driveConfig);
 
   private final SparkMax mAzimuth1 = new SparkMax(1, MotorType.kBrushless);
   private final SparkMax mAzimuth2 = new SparkMax(3, MotorType.kBrushless);

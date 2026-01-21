@@ -8,12 +8,13 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.ClosedLoopConfig.*;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkClosedLoopController;
 
 
@@ -26,18 +27,25 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
+import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class SwerveModuleV3 implements SwerveModule {
 
     private final SparkMax mAzimuthMotor;
-    private final SparkMax mDriveMotor;
+   // private final SparkMax mDriveMotor;
+   private final TalonFX mDriveMotor;
 
 
     private final CANcoder mAzimuthAbsoluteEncoder;
 
 
     private final RelativeEncoder mAzimuthIncrementalEncoder;
-    private final RelativeEncoder mDriveEncoder;
+   // private final RelativeEncoder mDriveEncoder;
 
     private final Translation2d mLocation;
     private final String mName;
@@ -46,7 +54,7 @@ public class SwerveModuleV3 implements SwerveModule {
 
     // need to update the speed to m/s
 
-    public SwerveModuleV3(SparkMax azimuthMotor, SparkMax driveMotor,
+    public SwerveModuleV3(SparkMax azimuthMotor, TalonFX driveMotor,
             Translation2d location, String name, CANcoder azimuthEncoder) {
             
         mDriveMotor = driveMotor;
@@ -61,43 +69,49 @@ public class SwerveModuleV3 implements SwerveModule {
         // Get encoders
         mAzimuthAbsoluteEncoder = azimuthEncoder;
         mAzimuthIncrementalEncoder = mAzimuthMotor.getEncoder();
-        mDriveEncoder = mDriveMotor.getEncoder();
+        //mDriveEncoder = mDriveMotor.getEncoder();
 
+        //SparkMaxConfig driveConfig = new SparkMaxConfig();
+        TalonFXConfiguration driveConfig = new TalonFXConfiguration(); 
+        driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        driveConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
+        driveConfig.Feedback.FeedbackSensorSource = 
+                FeedbackSensorSourceValue.RotorSensor;
+        driveConfig.Slot0.kP = 1.0;
+        driveConfig.Slot0.kI = 0.0;
+        driveConfig.Slot0.kD = 0.0;
+        driveConfig.Slot0.kV = 0.0;
 
-        SparkMaxConfig driveConfig = new SparkMaxConfig();
+        driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
+        
+        //  driveConfig
+        // .inverted(true)
+        // .idleMode(IdleMode.kBrake);
+        // driveConfig.encoder
+        // .positionConversionFactor(0.319024/6.12)
+        // .velocityConversionFactor(((0.319024/6.12) / 60));
+        // driveConfig.closedLoop
+        // .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        // .pid(1.0, 0.0, 0.0)
+        // .velocityFF(0.0);
+        
+        //mDriveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        mDriveMotor.getConfigurator().apply(driveConfig);
+        
+        SparkMaxConfig azimuthConfig = new SparkMaxConfig();
 
-        driveConfig
-    .inverted(true)
-    .idleMode(IdleMode.kBrake);
-    driveConfig.encoder
-    .positionConversionFactor(0.319024/6.12)
-    .velocityConversionFactor(((0.319024/6.12) / 60));
-    driveConfig.closedLoop
-    .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-    .pid(1.0, 0.0, 0.0)
-    .velocityFF(0.0);
-    
-    
-mDriveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-SparkMaxConfig azimuthConfig = new SparkMaxConfig();
-
-azimuthConfig
-.inverted(true)
-.idleMode(IdleMode.kBrake);
-azimuthConfig.encoder
-.positionConversionFactor(150.0/7.0)
-.velocityConversionFactor(1);
-azimuthConfig.closedLoop
-.feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-.pid(0.05, 0.0, 0.0)
-.positionWrappingMaxInput(360)
-.positionWrappingMinInput(0);
-
-
-mDriveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-
+        azimuthConfig
+        .inverted(true)
+        .idleMode(IdleMode.kBrake);
+        azimuthConfig.encoder
+        .positionConversionFactor(150.0/7.0)
+        .velocityConversionFactor(1);
+        azimuthConfig.closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .pid(0.05, 0.0, 0.0)
+        .positionWrappingMaxInput(360)
+        .positionWrappingMinInput(0);
 
         azimuthPID.enableContinuousInput(-180,180);
         // Configure azimuth PID
@@ -107,24 +121,20 @@ mDriveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.k
         // mAzimuthPID.setPositionPIDWrappingEnabled(true);
         // mAzimuthPID.setPositionPIDWrappingMinInput(0);
         // mAzimuthPID.setPositionPIDWrappingMaxInput(360);
-
-
-
     }
 
     // Sets the drive motor speed in open loop mode
     public void setSpeed(double speed) {
         mDriveMotor.set(speed);
     }
-
+    
+    // Gets the speed of the drive motor
+    public double getSpeed() {
+        return mDriveMotor.getVelocity().getValueAsDouble();
+    }
     // Sets the rotation speed of the azimuth motor in open loop mode
     public void setRotation(double rotation) {
         mAzimuthMotor.set(rotation);
-    }
-
-    // Gets the speed of the drive motor
-    public double getSpeed() {
-        return mDriveEncoder.getVelocity();
     }
 
     // Gets the rotation position of the azimuth module
@@ -156,7 +166,7 @@ mDriveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.k
 
     // Get the distance of the drive encoder
     public double getDistance() {
-        return mDriveEncoder.getPosition();
+        return mDriveMotor.getPosition().getValueAsDouble();
     }
 
     // Log swerve data
@@ -179,17 +189,44 @@ mDriveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.k
         //SmartDashboard.putNumber(mName + "Angle", current.getDegrees());
     }
 
+    // @Override
+    // public void setClosedLoop(SwerveModuleState drive) {
+    //     Rotation2d current = Rotation2d.fromDegrees(mAzimuthAbsoluteEncoder.getPosition().getValueAsDouble()*360.0);
+    //     SwerveModuleState optimizedState = SwerveModuleState.optimize(drive, current);
+    //     double setpoint = optimizedState.angle.getDegrees();
+    //     double velocity = optimizedState.speedMetersPerSecond;
+    //     //mAzimuthPID.setReference(setpoint, ControlType.kPosition);
+        
+    //     mAzimuthMotor.set(azimuthPID.calculate(current.getDegrees(), setpoint));
+    //     //mDrivePID.setReference(velocity, ControlType.kVelocity);
+    // }
+
     @Override
     public void setClosedLoop(SwerveModuleState drive) {
-        Rotation2d current = Rotation2d.fromDegrees(mAzimuthAbsoluteEncoder.getPosition().getValueAsDouble()*360.0);
-        SwerveModuleState optimizedState = SwerveModuleState.optimize(drive, current);
-        double setpoint = optimizedState.angle.getDegrees();
-        double velocity = optimizedState.speedMetersPerSecond;
-        //mAzimuthPID.setReference(setpoint, ControlType.kPosition);
-        
-        mAzimuthMotor.set(azimuthPID.calculate(current.getDegrees(), setpoint));
-        //mDrivePID.setReference(velocity, ControlType.kVelocity);
+        Rotation2d current =
+            Rotation2d.fromDegrees(
+                mAzimuthAbsoluteEncoder.getPosition().getValueAsDouble() * 360.0
+            );
+
+        SwerveModuleState optimizedState =
+            SwerveModuleState.optimize(drive, current);
+
+        double angleSetpoint = optimizedState.angle.getDegrees();
+        double velocityMps = optimizedState.speedMetersPerSecond;
+
+        mAzimuthMotor.set(
+            azimuthPID.calculate(current.getDegrees(), angleSetpoint)
+        );
+
+        //drive gear ratio 6.28:1, 
+        double targetRPS =
+            velocityMps * 6.28 / 0.319186;
+
+        mDriveMotor.setControl(
+            new VelocityVoltage(targetRPS)
+        );
     }
+
 
     // Stop all motors
     @Override
