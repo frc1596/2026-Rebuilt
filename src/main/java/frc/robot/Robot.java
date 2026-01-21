@@ -39,9 +39,8 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommand;
-import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.IntakePivotSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
+// Import the subsystems here 
+
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -60,9 +59,6 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final SwerveSubsystem swerve = new SwerveSubsystem();
-  private final ElevatorSubsystem elevator = new ElevatorSubsystem();
-  private final IntakePivotSubsystem intakePivotSubsystem = new IntakePivotSubsystem();
-  private final IntakeSubsystem intake = new IntakeSubsystem();
   //public static DigitalInput coralSensor = new DigitalInput(7);
 
 private int m_rainbowFirstPixelHue=0;
@@ -96,34 +92,11 @@ Trigger intakeAlgaeIn;
     m_led.start();
 
     //Named commands for the pathplanner auto
-    NamedCommands.registerCommand("Outtake", intake.runIntakesAuto(0.2));
-    NamedCommands.registerCommand("Intake", intake.runIntakesAuto(-0.3));
-    NamedCommands.registerCommand("Stop Intake", intake.runIntakes(0));
-
-    NamedCommands.registerCommand("AlignNearestTag", swerve.alignCommand());
-
-    NamedCommands.registerCommand("Elevator Down", elevator.elevatorDown().alongWith(intakePivotSubsystem.intakePivot(0)));
-    NamedCommands.registerCommand("Elevator L1", elevator.elevatorUp(1).alongWith(intakePivotSubsystem.intakePivot(0)));
-    NamedCommands.registerCommand("ElevatorL2", elevator.elevatorUp(2).alongWith(intakePivotSubsystem.intakePivot(5.5)));
-    NamedCommands.registerCommand("ElevatorL3", elevator.elevatorUp(3).alongWith(intakePivotSubsystem.intakePivot(5.5)));
-    NamedCommands.registerCommand("ElevatorL4", elevator.elevatorUp(4).alongWith(intakePivotSubsystem.intakePivot(6.5)));
-    NamedCommands.registerCommand("AlgaeL2", elevator.elevatorUp(2).alongWith(intakePivotSubsystem.intakePivot(-3)));
-    NamedCommands.registerCommand("AlgaeL3", elevator.elevatorUp(3).alongWith(intakePivotSubsystem.intakePivot(-3)));
-
-    NamedCommands.registerCommand("GroundAlgae", intakePivotSubsystem.intakePivot(-2).andThen(elevator.elevatorDown()).andThen(intake.runIntakesAuto(-0.3)));
-
-
-    NamedCommands.registerCommand("Pivot to Station", intakePivotSubsystem.intakePivot(-1));
-    NamedCommands.registerCommand("Pivot to L2L3", intakePivotSubsystem.intakePivot(0));
-    NamedCommands.registerCommand("Pivot to L1", intakePivotSubsystem.intakePivot(-1));
-
+    //NamedCommands.registerCommand("Outtake", intake.runIntakesAuto(0.2));
+    
     FollowPathCommand.warmupCommand().schedule();
 
     autoChooser = AutoBuilder.buildAutoChooser();
-
-    // UsbCamera camera = CameraServer.startAutomaticCapture();
-    // camera.setResolution(160, 120);
-    // camera.setFPS(24);
 
   }
 
@@ -230,18 +203,7 @@ Trigger intakeAlgaeIn;
         }
       }
 
-      //if intaking or outaking, set colors depending on direction
-      if(intake.getIntakeSpeed() != 0){
-        if(intake.getIntakeSpeed() > 0){
-          for (int i = 0; i < 94; i += 2) {
-            m_ledBuffer.setRGB(i, 255, 255, 0); // grb
-          }
-        } else{
-          for (int i = 0; i < 94; i += 2) {
-            m_ledBuffer.setRGB(i, 0, 80, 80); // grb
-          }
-        }
-      } 
+
 
       //if auto aiming, set every other LED white, if aiming for algae make them cyan
       if(driverController.getLeftBumperButton()){
@@ -300,66 +262,19 @@ Trigger intakeAlgaeIn;
 
   public void configureButtonBindings() {
     // Triggers
+    // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
     // placing coral
-    Trigger elevatorLevelFour = operatorController.y().and(operatorController.povLeft().negate());
-    Trigger elevatorLevelThree = operatorController.x().and(operatorController.povLeft().negate());
-    Trigger elevatorLevelTwo = operatorController.b().and(operatorController.povLeft().negate());
-    Trigger elevatorLevelOne = operatorController.a().and(operatorController.povLeft().negate());
-    Trigger elevatorDown = operatorController.povDown();
-
-    Trigger humanStation = operatorController.start();
-
-//Trigger bargeScore = operatorController.rightStick();
-
-    // intake and out
-    Trigger intakeIn = operatorController.rightBumper().and(operatorController.povLeft().negate());
-    Trigger intakeInOverride = operatorController.rightBumper().and(operatorController.rightTrigger());
-    Trigger intakeOut = operatorController.leftBumper().and(operatorController.povLeft().negate());
-     intakeAlgaeIn = operatorController.rightBumper().and(operatorController.povCenter().negate());
-    Trigger intakeAlgaeOut = operatorController.leftBumper().and(operatorController.povCenter().negate());
-
-    // harvesting algae
-   // Trigger algaeGroundIntake = operatorController.povLeft().and(operatorController.a());
-    // Trigger algaeLevelOneIntake = operatorController.povLeft().and(operatorController.b());
-    // Trigger algaeLevelTwoIntake = operatorController.povLeft().and(operatorController.x());
-Trigger algaeGroundIntake = operatorController.povCenter().negate().and(operatorController.povDown().negate()).and(operatorController.a());
-Trigger algaeLevelOneIntake = operatorController.povCenter().negate().and(operatorController.povDown().negate()).and(operatorController.b());
-Trigger algaeLevelTwoIntake = operatorController.povCenter().negate().and(operatorController.povDown().negate()).and(operatorController.x());
-
-//boolean x, b;
-//DriveCommand driveCommandInstance = new DriveCommand(swerve, driverController, operatorController, limelight, camera);
-Trigger test = new Trigger(() -> (drivetrain.isDoneMoving() && elevator.moveInPosistion() && intakePivotSubsystem.moveInPosistion()));
-test.whileTrue(new RunCommand(() -> intake.runIntakes(0.10), intake).andThen(new RunCommand(() -> intake.runIntakes(0.0), intake)));
-
-    //
-// +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    // Bindings
+    //Trigger elevatorLevelFour = operatorController.y().and(operatorController.povLeft().negate());
+    
     // coral
 
+   // elevatorLevelFour.whileTrue(elevator.elevatorUp(4).alongWith(intakePivotSubsystem.intakePivot(6.25)));
     
-    //bargeScore.whileTrue(elevator.elevatorUp(3).alongWith(intakePivotSubsystem.intakePivot(6)).andThen(intakePivotSubsystem.intakePivot(-2).raceWith(new WaitCommand(0.55)).andThen(intake.runIntakes(-1))));
-    elevatorLevelFour.whileTrue(elevator.elevatorUp(4).alongWith(intakePivotSubsystem.intakePivot(6.25)));
-    elevatorLevelThree.whileTrue(elevator.elevatorUp(3).alongWith(intakePivotSubsystem.intakePivot(5.5)));
-    elevatorLevelTwo.whileTrue(elevator.elevatorUp(2).alongWith(intakePivotSubsystem.intakePivot(5.5)));
-    elevatorLevelOne.whileTrue(elevator.elevatorUp(1).alongWith(intakePivotSubsystem.intakePivot(0)));
-    elevatorDown.whileTrue(elevator.elevatorDown().alongWith(intakePivotSubsystem.intakePivot(0)));
-
-    humanStation.whileTrue(elevator.elevatorUp(5).alongWith(intakePivotSubsystem.intakePivot(1.8)));
-
     // algae
-    algaeGroundIntake.whileTrue(elevator.elevatorDown().alongWith(intakePivotSubsystem.intakePivot(-3.8)));
-    algaeLevelOneIntake.whileTrue(elevator.elevatorUp(2).alongWith(intakePivotSubsystem.intakePivot(-2.7)));
-    algaeLevelTwoIntake.whileTrue(elevator.elevatorUp(3).alongWith(intakePivotSubsystem.intakePivot(-2.7)));
-
+    // algaeGroundIntake.whileTrue(elevator.elevatorDown().alongWith(intakePivotSubsystem.intakePivot(-3.8)));
+    
     // intake and out
-    // intakeIn.onTrue(intake.runIntakes(0.10));
-    intakeOut.whileTrue(intake.runIntakes(-0.10));
-    intakeIn.whileTrue(intake.runIntakes(0.10).until( ()-> coralSensor.get()));
-    intakeInOverride.whileTrue(intake.runIntakes(0.10));
-    // .until( ()-> intake.coralSensor.get() == true)
-    // .until(intake.coralSensor::get)
-    intakeAlgaeIn.whileTrue(intake.reverseIntakes(0.4));
-    intakeAlgaeOut.whileTrue(intake.runIntakes(-0.24));
+    //intakeOut.whileTrue(intake.runIntakes(-0.10));
 
   }
   private void rainbow() {
