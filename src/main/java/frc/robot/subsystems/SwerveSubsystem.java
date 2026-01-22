@@ -48,9 +48,14 @@ public class SwerveSubsystem extends SubsystemBase {
   private final TalonFX mDriveMotor1 = new TalonFX(2);
   private final TalonFX mDriveMotor2 = new TalonFX(4);
   private final TalonFX mDriveMotor3 = new TalonFX(6);
-  private final TalonFX mDriveMotor4 = new TalonFX(8);
+  private final TalonFX mDriveMotor4 = new TalonFX(17);
   
-  TalonFXConfiguration driveConfig = new TalonFXConfiguration();
+    // TalonFXConfiguration driveConfig = new TalonFXConfiguration();
+  
+    // mDriveMotor1.getConfigurator().apply(driveConfig);
+    // mDriveMotor2.getConfigurator().apply(driveConfig);
+    // mDriveMotor3.getConfigurator().apply(driveConfig);
+    // mDriveMotor4.getConfigurator().apply(driveConfig);
 
   private final SparkMax mAzimuth1 = new SparkMax(1, MotorType.kBrushless);
   private final SparkMax mAzimuth2 = new SparkMax(3, MotorType.kBrushless);
@@ -94,12 +99,6 @@ int limelightlimiter = 0;
   //private final PhotonPoseEstimator photonEstimator = new PhotonPoseEstimator(camera, PhotonPoseEstimator.PoseStrategy.AVERAGE_BEST_TARGETS, kTagLayout, new Pose2d(0, 0, new Rotation2d()));
 
   public SwerveSubsystem() {
-
-  mDriveMotor1.getConfigurator().apply(driveConfig);
-  mDriveMotor2.getConfigurator().apply(driveConfig);
-  mDriveMotor3.getConfigurator().apply(driveConfig);
-  mDriveMotor4.getConfigurator().apply(driveConfig);
-
    gyro.reset();
 
    //pathplanner config,
@@ -111,7 +110,7 @@ int limelightlimiter = 0;
               0.0508,
               5.06,
               1,
-              DCMotor.getNEO(1), 
+              DCMotor.getFalcon500(1), 
               6.12,
               40,
               1),
