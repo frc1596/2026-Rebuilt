@@ -11,7 +11,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.PersistMode;
 import com.revrobotics.RelativeEncoder;
-
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -33,10 +32,12 @@ public class IntakeSubsystem extends SubsystemBase{
     private final RelativeEncoder mIntakeEncoder;
     private final SparkClosedLoopController mIntakePID;
 
-    private final TrapezoidProfile m_Profile = new TrapezoidProfile(new TrapezoidProfile.Constraints(40, 60));
-    private TrapezoidProfile.State m_Goal = new TrapezoidProfile.State(0,0); 
-    private TrapezoidProfile.State m_Setpoint = new TrapezoidProfile.State(0,0);
+    private final TrapezoidProfile m_pivotProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(40, 60));
+    private TrapezoidProfile.State m_pivotGoal = new TrapezoidProfile.State(0,0); 
+    private TrapezoidProfile.State m_pivotSetpoint = new TrapezoidProfile.State(0,0);
  
+    private static double kDt = 0.02;
+
     public IntakeSubsystem()
     {
         //intakepivitconfig
@@ -47,7 +48,7 @@ public class IntakeSubsystem extends SubsystemBase{
         intakePivotConfig.smartCurrentLimit(40);
         intakePivotConfig.inverted(false); 
 
-        intakePivot.configure(intakePivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        intakePivot.configure(intakePivotConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
         mIntakeEncoder = intakePivot.getEncoder();
         mIntakeEncoder.setPosition(0); 
         mIntakePID = intakePivot.getClosedLoopController(); 
@@ -59,8 +60,66 @@ public class IntakeSubsystem extends SubsystemBase{
         intakeFuelConfig.inverted(false); 
 
         intakeFuelConfig.follow(00);
-        intakeFuel.configure(intakeFuelConfig, null, null); 
+        intakeFuel.configure(intakeFuelConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
 
     }
 
+    @Override
+    public void periodic() 
+    {
+        // Set point for the pivot
+        m_pivotSetpoint = m_pivotProfile.calculate(kDt, m_pivotSetpoint, m_pivotGoal);
+
+        //Set new position to the PID Controller
+        mIntakePID.setReference(m_pivotSetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
+    }
+
+    public void setPivotAngle(double angle)
+    {
+        m_pivotGoal = new TrapezoidProfile.State(angle, 0);
+    }
+
+    public void doNothing()
+    {
+        //literally does nothing for logic
+    }
+
+    public boolean movePivotInPosition() {
+        return Math.abs(m_pivotSetpoint.position - m_pivotGoal.position) < 1.0;
+    }
+
+    public Command intakePivot(double angle)
+    {
+        return this.startEnd(() -> setPivotAngle(angle), () -> doNothing()).until(() -> movePivotInPosition());
+    }
+
+    public void startFuelIntake(double speed)
+    {
+        intakeFuel.set(speed); 
+    }
+
+    public void stopFuelIntake(double speed)
+    {
+        intakeFuel.set(0);
+    }
+
+    public double getFuelIntakeSpeed()
+    {
+        return(intakeFuel.get());
+    }
+
+    public Command stopFuelIntake()
+    {
+        return this.run(()->stopFuelIntake());
+    }
+
+    public Command startFuelIntakeCmd(double speed)
+    {
+        return this.startEnd(() -> startFuelIntake(speed), () -> doNothing());
+    }
+    
+    // public Command runFuelIntakesAuto(double speed)
+    // {
+    //     return this.startEnd(() -> startFuelIntake(speed), () -> Commands.waitSeconds(1));
+    // }
 }

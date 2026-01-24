@@ -40,7 +40,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommand;
 // Import the subsystems here 
-
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -59,6 +59,9 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private final SwerveSubsystem swerve = new SwerveSubsystem();
+  private final IntakeSubsystem intake = new IntakeSubsystem();
+
+  // Sensor if we need it later 
   //public static DigitalInput coralSensor = new DigitalInput(7);
 
 private int m_rainbowFirstPixelHue=0;
@@ -74,7 +77,7 @@ private int m_rainbowFirstPixelHue=0;
   DriveCommand drivetrain ;
 
   SendableChooser<Command> autoChooser = new SendableChooser<>();
-  public static DigitalInput coralSensor = new DigitalInput(7);
+
 
 Trigger intakeAlgaeIn;
   /**
@@ -92,7 +95,8 @@ Trigger intakeAlgaeIn;
     m_led.start();
 
     //Named commands for the pathplanner auto
-    //NamedCommands.registerCommand("Outtake", intake.runIntakesAuto(0.2));
+
+    //NamedCommands.registerCommand("IntakeFuel", intake.startFuelIntake(SET SPEED););
     
     FollowPathCommand.warmupCommand().schedule();
 
@@ -186,10 +190,6 @@ Trigger intakeAlgaeIn;
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    SmartDashboard.putBoolean("Sensorrobot:", coralSensor.get()); 
-
-
-
     //sets the LED color based on which alliance we're on
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent()) {
@@ -263,18 +263,18 @@ Trigger intakeAlgaeIn;
   public void configureButtonBindings() {
     // Triggers
     // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
-    // placing coral
-    //Trigger elevatorLevelFour = operatorController.y().and(operatorController.povLeft().negate());
-    
-    // coral
+    //  Intake 
+    Trigger startIntake = operatorController.a();
+    Trigger intakeUp = operatorController.povUp(); 
+    Trigger intakeDown = operatorController.povDown(); 
+    Trigger reverseIntake = operatorController.b();
 
-   // elevatorLevelFour.whileTrue(elevator.elevatorUp(4).alongWith(intakePivotSubsystem.intakePivot(6.25)));
-    
-    // algae
-    // algaeGroundIntake.whileTrue(elevator.elevatorDown().alongWith(intakePivotSubsystem.intakePivot(-3.8)));
-    
-    // intake and out
-    //intakeOut.whileTrue(intake.runIntakes(-0.10));
+
+    //Commands/Bindings 
+    startIntake.whileTrue(intake.startFuelIntakeCmd(0.10));
+    intakeUp.whileTrue(intake.intakePivot(1)); 
+    intakeDown.whileTrue(intake.intakePivot(0));
+    reverseIntake.whileTrue(intake.startFuelIntakeCmd(0.10));
 
   }
   private void rainbow() {
