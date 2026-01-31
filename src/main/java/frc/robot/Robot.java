@@ -206,16 +206,16 @@ Trigger intakeAlgaeIn;
           m_ledBuffer.setRGB(i, 0, 0, 100); // grb
         }
       }
-      if (driverController.getYButton()){
-        intake.setPivotAngle(10);
-      } else{
-        intake.setPivotAngle(0);
-      }
-      if (driverController.getXButton()){
-        intake.startFuelIntake(1);
-      } else{
-        intake.startFuelIntake(0);
-      }
+      // if (driverController.getYButton()){
+      //   intake.setPivotAngle(10);
+      // } else{
+      //   intake.setPivotAngle(0);
+      // }
+      // if (driverController.getXButton()){
+      //   intake.setFuelIntakeSpeed(1);
+      // } else{
+      //   intake.setFuelIntakeSpeed(0);
+      // }
 
 
       //if auto aiming, set every other LED white, if aiming for algae make them cyan
@@ -284,10 +284,10 @@ Trigger intakeAlgaeIn;
 
 
     //Commands/Bindings 
-    startIntake.whileTrue(intake.startFuelIntakeCmd(0.10));
-    intakeUp.whileTrue(intake.intakePivot(1)); 
-    intakeDown.whileTrue(intake.intakePivot(0));
-    reverseIntake.whileTrue(intake.startFuelIntakeCmd(0.10));
+    startIntake.whileTrue(intake.startFuelIntakeCmd(1));
+    intakeUp.whileTrue(intake.intakePivot(0)); 
+    intakeDown.whileTrue(intake.intakePivot(12));
+    reverseIntake.whileTrue(intake.startFuelIntakeCmd(-.5));
 
   }
   private void rainbow() {
