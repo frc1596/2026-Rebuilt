@@ -23,8 +23,8 @@ import frc.robot.Robot;
 
 public class IntakeSubsystem extends SubsystemBase{
     //Update once know pls - Ivy
-    private final  SparkMax intakePivot = new SparkMax(00, MotorType.kBrushless);
-    private final  SparkMax intakeFuel = new SparkMax(01, MotorType.kBrushless);
+    private final  SparkMax intakePivot = new SparkMax(13, MotorType.kBrushless);
+    private final  SparkMax intakeFuel = new SparkMax(14, MotorType.kBrushless);
 
     SparkMaxConfig intakePivotConfig = new SparkMaxConfig();
     SparkMaxConfig intakeFuelConfig = new SparkMaxConfig();
@@ -45,7 +45,7 @@ public class IntakeSubsystem extends SubsystemBase{
         intakePivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(0.4,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
         intakePivotConfig.encoder.positionConversionFactor(1); 
         intakePivotConfig.encoder.velocityConversionFactor(1); 
-        intakePivotConfig.smartCurrentLimit(40);
+        intakePivotConfig.smartCurrentLimit(5);
         intakePivotConfig.inverted(false); 
 
         intakePivot.configure(intakePivotConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
@@ -53,16 +53,16 @@ public class IntakeSubsystem extends SubsystemBase{
         mIntakeEncoder.setPosition(0); 
         mIntakePID = intakePivot.getClosedLoopController(); 
 
-        intakeFuelConfig.idleMode(IdleMode.kBrake);
+        intakeFuelConfig.idleMode(IdleMode.kCoast);
         intakeFuelConfig.encoder.positionConversionFactor(1); 
         intakeFuelConfig.encoder.velocityConversionFactor(1); 
-        intakeFuelConfig.smartCurrentLimit(40);
+        intakeFuelConfig.smartCurrentLimit(30);
         intakeFuelConfig.inverted(false); 
 
-        intakeFuelConfig.follow(00);
         intakeFuel.configure(intakeFuelConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
 
     }
+
 
     @Override
     public void periodic() 

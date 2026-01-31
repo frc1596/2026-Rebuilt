@@ -76,6 +76,7 @@ private int m_rainbowFirstPixelHue=0;
   PhotonCamera camera = new PhotonCamera("EleCamera");
   DriveCommand drivetrain ;
 
+  
   SendableChooser<Command> autoChooser = new SendableChooser<>();
 
 
@@ -181,6 +182,9 @@ Trigger intakeAlgaeIn;
      drivetrain = new DriveCommand(swerve, driverController, operatorController, limelight, camera);
     swerve.setDefaultCommand(drivetrain);
 
+
+
+
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
@@ -202,7 +206,16 @@ Trigger intakeAlgaeIn;
           m_ledBuffer.setRGB(i, 0, 0, 100); // grb
         }
       }
-
+      if (driverController.getYButton()){
+        intake.setPivotAngle(10);
+      } else{
+        intake.setPivotAngle(0);
+      }
+      if (driverController.getXButton()){
+        intake.startFuelIntake(1);
+      } else{
+        intake.startFuelIntake(0);
+      }
 
 
       //if auto aiming, set every other LED white, if aiming for algae make them cyan

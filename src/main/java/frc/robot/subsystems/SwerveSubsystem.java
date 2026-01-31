@@ -48,7 +48,7 @@ public class SwerveSubsystem extends SubsystemBase {
   private final TalonFX mDriveMotor1 = new TalonFX(2);
   private final TalonFX mDriveMotor2 = new TalonFX(4);
   private final TalonFX mDriveMotor3 = new TalonFX(6);
-  private final TalonFX mDriveMotor4 = new TalonFX(17);
+  private final TalonFX mDriveMotor4 = new TalonFX(8);
   
     // TalonFXConfiguration driveConfig = new TalonFXConfiguration();
   
@@ -62,16 +62,16 @@ public class SwerveSubsystem extends SubsystemBase {
   private final SparkMax mAzimuth3 = new SparkMax(5, MotorType.kBrushless);
   private final SparkMax mAzimuth4 = new SparkMax(7, MotorType.kBrushless);
 
-  private final CANcoder mAzimuthEncoder1 = new CANcoder(10); 
-  private final CANcoder mAzimuthEncoder2 = new CANcoder(12); 
-  private final CANcoder mAzimuthEncoder3 = new CANcoder(9);  
-  private final CANcoder mAzimuthEncoder4 = new CANcoder(11); 
+  private final CANcoder mAzimuthEncoder1 = new CANcoder(9); 
+  private final CANcoder mAzimuthEncoder2 = new CANcoder(10); 
+  private final CANcoder mAzimuthEncoder3 = new CANcoder(11);  
+  private final CANcoder mAzimuthEncoder4 = new CANcoder(12); 
 
   //corners are done like a graph. Positive x,y in quadrant 1, and so on
-  private final SwerveModuleV3 Module1 = new SwerveModuleV3(mAzimuth1, mDriveMotor1, new Translation2d(0.29845, 0.29845), "Module 1", mAzimuthEncoder1);
-  private final SwerveModuleV3 Module2 = new SwerveModuleV3(mAzimuth2, mDriveMotor2, new Translation2d(0.29845, -0.29845), "Module 2", mAzimuthEncoder2);
-  private final SwerveModuleV3 Module3 = new SwerveModuleV3(mAzimuth3, mDriveMotor3, new Translation2d(-0.29845, -0.29845), "Module 3", mAzimuthEncoder3);
-  private final SwerveModuleV3 Module4 = new SwerveModuleV3(mAzimuth4, mDriveMotor4, new Translation2d(-0.29845,  0.29845), "Module 4", mAzimuthEncoder4);
+  private final SwerveModuleV3 Module1 = new SwerveModuleV3(mAzimuth1, mDriveMotor1, new Translation2d(-0.352425, 0.200025), "Module 1", mAzimuthEncoder1);
+  private final SwerveModuleV3 Module2 = new SwerveModuleV3(mAzimuth2, mDriveMotor2, new Translation2d(0.352425, 0.200025), "Module 2", mAzimuthEncoder2);
+  private final SwerveModuleV3 Module3 = new SwerveModuleV3(mAzimuth3, mDriveMotor3, new Translation2d(0.352425, -0.200025), "Module 3", mAzimuthEncoder3);
+  private final SwerveModuleV3 Module4 = new SwerveModuleV3(mAzimuth4, mDriveMotor4, new Translation2d(-0.352425,  -0.200025), "Module 4", mAzimuthEncoder4);
 
   //auto align stuff
  private PIDController xController = new PIDController(0.3, 0, 0.0); // left right
