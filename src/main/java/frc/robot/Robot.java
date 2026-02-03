@@ -292,7 +292,7 @@ Trigger intakeAlgaeIn;
     intakeUp.whileTrue(intake.intakePivot(0)); 
     intakeDown.whileTrue(intake.intakePivot(12));
     reverseIntake.whileTrue(intake.startFuelIntakeCmd(-.5));
-    shoot.whileTrue(shooter.shootCommand(limelight));
+    shoot.whileTrue(shooter.shootCommand());
 
   }
   private void rainbow() {
