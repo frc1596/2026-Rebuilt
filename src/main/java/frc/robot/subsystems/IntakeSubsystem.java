@@ -32,7 +32,7 @@ public class IntakeSubsystem extends SubsystemBase{
     private final RelativeEncoder mIntakeEncoder;
     private final SparkClosedLoopController mIntakePID;
 
-    private final TrapezoidProfile m_pivotProfile = new TrapezoidProfile(new TrapezoidProfile.Constrai 200));
+    private final TrapezoidProfile m_pivotProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(60, 200));
     private TrapezoidProfile.State m_pivotGoal = new TrapezoidProfile.State(0,0); 
     private TrapezoidProfile.State m_pivotSetpoint = new TrapezoidProfile.State(0,0);
  

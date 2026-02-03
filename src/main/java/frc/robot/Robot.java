@@ -43,6 +43,7 @@ import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 /**
@@ -60,6 +61,7 @@ public class Robot extends TimedRobot {
 
   private final SwerveSubsystem swerve = new SwerveSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
+  private final ShooterSubsystem shooter = new ShooterSubsystem();
 
   // Sensor if we need it later 
   //public static DigitalInput coralSensor = new DigitalInput(7);
@@ -281,6 +283,8 @@ Trigger intakeAlgaeIn;
     Trigger intakeUp = operatorController.povUp(); 
     Trigger intakeDown = operatorController.povDown(); 
     Trigger reverseIntake = operatorController.b();
+    //shoot buttons
+    Trigger shoot = operatorController.rightBumper();
 
 
     //Commands/Bindings 
@@ -288,6 +292,7 @@ Trigger intakeAlgaeIn;
     intakeUp.whileTrue(intake.intakePivot(0)); 
     intakeDown.whileTrue(intake.intakePivot(12));
     reverseIntake.whileTrue(intake.startFuelIntakeCmd(-.5));
+    shoot.whileTrue(shooter.shootCommand(limelight));
 
   }
   private void rainbow() {

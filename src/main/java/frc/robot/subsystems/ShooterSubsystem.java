@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
 
+import org.deceivers.drivers.LimelightHelpers;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -8,7 +10,12 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import org.deceivers.drivers.LimelightHelpers;
+
+
 
 public class ShooterSubsystem extends SubsystemBase{
 
@@ -19,13 +26,14 @@ public class ShooterSubsystem extends SubsystemBase{
     private final TalonFX shootOne = new TalonFX(54);
     private final TalonFX shootTwo = new TalonFX(55);
 
+
     public ShooterSubsystem()
     {
         
         SparkMaxConfig spindexterConfig = new SparkMaxConfig();
         SparkMaxConfig turretHoodConfig = new SparkMaxConfig();
         SparkMaxConfig turretRotateConfig = new SparkMaxConfig();
-    
+ 
         TalonFXConfiguration feederConfig = new TalonFXConfiguration();
             feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
             feederConfig.CurrentLimits.SupplyCurrentLimitEnable = true; 
@@ -48,6 +56,11 @@ public class ShooterSubsystem extends SubsystemBase{
         public void doNothing()
         {
 
+        }
+
+        public void rotateTurret(double angle)
+        {
+            turretRotate.set(angle);
         }
         
         public void setFeederSpeed(double speed)
@@ -74,18 +87,30 @@ public class ShooterSubsystem extends SubsystemBase{
         // it starts the shoot
         public void startShoot()
         {
-            if(getShootOneSpeed()  > 10 &&  getShootTwoSpeed()>10)
+            Pose3d position = LimelightHelpers.getCameraPose3d_TargetSpace("limelight");
+            position.getX(); 
+            position.getY(); 
+            position.getZ(); 
+            
+            if (getShootOneSpeed() == 0 && getShootTwoSpeed() == 0) // if the shooters have not been started
             {
-                // start everything else
-                setSpindexterSpeed(1);
+                setShootSpeed(15); // start the shooter 
+            }
+            else if (getShootOneSpeed() > 10 &&  getShootTwoSpeed() > 10) // if the shooters are up to speed 
+            {
+                setSpindexterSpeed(1);  // start everything else
                 setFeederSpeed(1);
             }
-                else{
-                    doNothing();
-                }
+            else{
+                doNothing();
+            }
         }
 
 
+    public Command shootCommand()
+    {
+        return this.startEnd(() -> startShoot(), () -> doNothing());
     }
+}
     
     
