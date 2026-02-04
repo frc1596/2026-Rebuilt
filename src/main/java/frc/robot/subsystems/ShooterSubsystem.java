@@ -3,6 +3,14 @@ package frc.robot.subsystems;
 
 import org.deceivers.drivers.LimelightHelpers;
 
+import org.photonvision.PhotonCamera;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonPoseEstimator.PoseStrategy;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.wpilibj.Timer;
+
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -29,6 +37,7 @@ public class ShooterSubsystem extends SubsystemBase{
     private final TalonFX feeder = new TalonFX(52);
     private final TalonFX shootOne = new TalonFX(54);
     private final TalonFX shootTwo = new TalonFX(55);
+    private final VisionSubsytem vision;
 
     private static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> shootMap = new InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble>(null, null);
     static {
@@ -42,9 +51,11 @@ public class ShooterSubsystem extends SubsystemBase{
 
 
     }
-    public ShooterSubsystem()
+
+    public ShooterSubsystem(VisionSubsytem vision)
     {
-        
+        this.vision = vision;
+
         SparkMaxConfig spindexterConfig = new SparkMaxConfig();
         SparkMaxConfig turretHoodConfig = new SparkMaxConfig();
         SparkMaxConfig turretRotateConfig = new SparkMaxConfig();
@@ -62,6 +73,8 @@ public class ShooterSubsystem extends SubsystemBase{
             shootOne.getConfigurator().apply(shootConfig, 0.05);
             shootTwo.getConfigurator().apply(shootConfig, 0.05);
         }
+        
+
         
         public void setHoodAngle(double angle)
         {
@@ -107,13 +120,21 @@ public class ShooterSubsystem extends SubsystemBase{
         // it starts the shoot
         public void startShoot()
         {
-            Pose3d position = LimelightHelpers.getCameraPose3d_TargetSpace("limelight");
-            position.getX(); 
-            position.getY(); 
-            position.getZ(); 
+            // Pose3d position = LimelightHelpers.getCameraPose3d_TargetSpace("limelight");
+            // position.getX(); 
+            // position.getY(); 
+            // position.getZ(); 
 
-            double hoodAngle = shootMap.get(new InterpolatingDouble(position.getZ())).value;
-            
+            Transform3d pose = vision.getPoseToTarget();
+
+            double x =pose.getX();
+            double y =pose.getY();
+            double z =pose.getZ();
+
+
+
+            double hoodAngle = shootMap.get(new InterpolatingDouble(z)).value;
+
             if (getShootOneSpeed() == 0 && getShootTwoSpeed() == 0) // if the shooters have not been started
             {
                 setShootSpeed(15); // start the shooter 

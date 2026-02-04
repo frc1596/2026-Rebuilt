@@ -45,6 +45,7 @@ import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.VisionSubsytem;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -58,10 +59,10 @@ import frc.robot.subsystems.SwerveSubsystem;
 public class Robot extends TimedRobot {
 
   private Command m_autonomousCommand;
-
+  private final VisionSubsytem vision = new VisionSubsytem();
   private final SwerveSubsystem swerve = new SwerveSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
-  private final ShooterSubsystem shooter = new ShooterSubsystem();
+  private final ShooterSubsystem shooter = new ShooterSubsystem(vision);
 
   // Sensor if we need it later 
   //public static DigitalInput coralSensor = new DigitalInput(7);
@@ -75,7 +76,7 @@ private int m_rainbowFirstPixelHue=0;
   AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(96);
 
   Limelight limelight = new Limelight();
-  PhotonCamera camera = new PhotonCamera("EleCamera");
+  PhotonCamera camera = new PhotonCamera("photon");
   DriveCommand drivetrain ;
 
   
