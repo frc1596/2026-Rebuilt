@@ -11,8 +11,12 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.Interpolable;
+import frc.robot.util.InterpolatingDouble;
+
 import org.deceivers.drivers.LimelightHelpers;
 
 
@@ -26,7 +30,18 @@ public class ShooterSubsystem extends SubsystemBase{
     private final TalonFX shootOne = new TalonFX(54);
     private final TalonFX shootTwo = new TalonFX(55);
 
+    private static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> shootMap = new InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble>(null, null);
+    static {
+        shootMap.put(new InterpolatingDouble(2.0), new InterpolatingDouble(.67));//~6 ft
+        shootMap.put(new InterpolatingDouble(3.0), new InterpolatingDouble(.67));//~9ft
+        shootMap.put(new InterpolatingDouble(4.0), new InterpolatingDouble(.67));//~12 ft
+        shootMap.put(new InterpolatingDouble(6.0), new InterpolatingDouble(.67));//~15 ft
+        shootMap.put(new InterpolatingDouble(7.0), new InterpolatingDouble(.67));//~18 ft
 
+
+
+
+    }
     public ShooterSubsystem()
     {
         
@@ -46,6 +61,11 @@ public class ShooterSubsystem extends SubsystemBase{
             shootConfig.CurrentLimits.SupplyCurrentLimit = 40;
             shootOne.getConfigurator().apply(shootConfig, 0.05);
             shootTwo.getConfigurator().apply(shootConfig, 0.05);
+        }
+        
+        public void setHoodAngle(double angle)
+        {
+            turretHood.set(angle);
         }
         
         public void setSpindexterSpeed(double speed)
@@ -91,6 +111,8 @@ public class ShooterSubsystem extends SubsystemBase{
             position.getX(); 
             position.getY(); 
             position.getZ(); 
+
+            double hoodAngle = shootMap.get(new InterpolatingDouble(position.getZ())).value;
             
             if (getShootOneSpeed() == 0 && getShootTwoSpeed() == 0) // if the shooters have not been started
             {
