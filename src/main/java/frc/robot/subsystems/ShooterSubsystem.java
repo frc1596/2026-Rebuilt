@@ -34,7 +34,7 @@ public class ShooterSubsystem extends SubsystemBase{
     private final SparkMax spindexter = new SparkMax(51, MotorType.kBrushless);
     private final SparkMax turretHood = new SparkMax(50, MotorType.kBrushless);
     private final SparkMax turretRotate = new SparkMax(53, MotorType.kBrushless);
-    private final TalonFX feeder = new TalonFX(52);
+    private final TalonFX feeder = new TalonFX(20);
     private final TalonFX shootOne = new TalonFX(54);
     private final TalonFX shootTwo = new TalonFX(55);
     private final VisionSubsytem vision;
@@ -61,11 +61,10 @@ public class ShooterSubsystem extends SubsystemBase{
         SparkMaxConfig turretRotateConfig = new SparkMaxConfig();
  
         TalonFXConfiguration feederConfig = new TalonFXConfiguration();
-            feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+            feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
             feederConfig.CurrentLimits.SupplyCurrentLimitEnable = true; 
             feederConfig.CurrentLimits.SupplyCurrentLimit = 40;
             feeder.getConfigurator().apply(feederConfig, 0.05);
-
         TalonFXConfiguration shootConfig = new TalonFXConfiguration();
             shootConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
             shootConfig.CurrentLimits.SupplyCurrentLimitEnable = true; 
@@ -131,8 +130,6 @@ public class ShooterSubsystem extends SubsystemBase{
             double y =pose.getY();
             double z =pose.getZ();
 
-
-
             double hoodAngle = shootMap.get(new InterpolatingDouble(z)).value;
 
             if (getShootOneSpeed() == 0 && getShootTwoSpeed() == 0) // if the shooters have not been started
@@ -142,7 +139,7 @@ public class ShooterSubsystem extends SubsystemBase{
             else if (getShootOneSpeed() > 10 &&  getShootTwoSpeed() > 10) // if the shooters are up to speed 
             {
                 setSpindexterSpeed(1);  // start everything else
-                setFeederSpeed(1);
+               // setFeederSpeed(1);
             }
             else{
                 doNothing();

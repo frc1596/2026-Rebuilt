@@ -56,7 +56,7 @@ public class IntakeSubsystem extends SubsystemBase{
         intakeFuelConfig.idleMode(IdleMode.kCoast);
         intakeFuelConfig.encoder.positionConversionFactor(1); 
         intakeFuelConfig.encoder.velocityConversionFactor(1); 
-        intakeFuelConfig.smartCurrentLimit(30);
+        intakeFuelConfig.smartCurrentLimit(50);
         intakeFuelConfig.inverted(false); 
 
         intakeFuel.configure(intakeFuelConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
@@ -105,12 +105,12 @@ public class IntakeSubsystem extends SubsystemBase{
 
     public Command stopFuelIntake()
     {
-        return this.run(()->stopFuelIntake());
+        return this.run(()->intakeFuel.set(0));
     }
 
     public Command startFuelIntakeCmd(double speed)
     {
-        return this.startEnd(() -> setFuelIntakeSpeed(speed), () -> setFuelIntakeSpeed(0));
+        return this.startEnd(() -> setFuelIntakeSpeed(speed),() -> setFuelIntakeSpeed(0.0));
     }
     
     // public Command runFuelIntakesAuto(double speed)

@@ -22,7 +22,7 @@ public class DriveCommand extends Command {
   public final SwerveSubsystem mSwerve;
   public XboxController mController;
   public CommandXboxController mController2;
-  public Limelight mLimelight;
+  //public Limelight mLimelight;
 
   private PIDController xController = new PIDController(0.35, 0, 0.0); // left right
   private PIDController yController = new PIDController(0.2, 0.0, 0.0);// forward backward
@@ -46,15 +46,13 @@ public class DriveCommand extends Command {
   private boolean lastScan;
   private double driveFactor = 0.85;
 
-  PhotonCamera camera;
+  //PhotonCamera camera;
 
-  public DriveCommand(SwerveSubsystem swerve, XboxController XboxController, CommandXboxController XboxController2,
-      Limelight limelight, PhotonCamera mcamera) {
+  public DriveCommand(SwerveSubsystem swerve, XboxController XboxController, CommandXboxController XboxController2
+      ) {
     mSwerve = swerve;
-    mLimelight = limelight;
     mController2 = XboxController2;
     mController = XboxController;
-    camera = mcamera;
 
     autoAimController.enableContinuousInput(-360, 360);
 
@@ -112,29 +110,29 @@ public class DriveCommand extends Command {
     rotVel = rotVel * driveFactor;
 
     // Camera tracking and auto align
-    var result = camera.getLatestResult();
+    //var result = camera.getLatestResult();
 
-    boolean photonHasTargets = result.hasTargets();
-    SmartDashboard.putString("PhotonVision Result", result.toString());
-    SmartDashboard.putBoolean("PhotonVision HasTargets", photonHasTargets);
+    //boolean photonHasTargets = result.hasTargets();
+    // SmartDashboard.putString("PhotonVision Result", result.toString());
+    // SmartDashboard.putBoolean("PhotonVision HasTargets", photonHasTargets);
 
-    if (mController.getLeftBumper() && LimelightHelpers.getTV("limelight")) {
+    // if (mController.getLeftBumper() && LimelightHelpers.getTV("limelight")) {
 
-     // LimelightHelpers.setPipelineIndex("limelight", 0);
-      yVel = yController
-          .calculate(xFilter2.calculate(LimelightHelpers.getCameraPose3d_TargetSpace("limelight").getZ()), -0.6); // forward
-                                                                                                                  // backward
-      xVel = -xController.calculate(yFilter2.calculate(LimelightHelpers.getCameraPose3d_TargetSpace("limelight").getX()),
-          0.18);
-      rotVel = autoAimController.calculate(
-          aimFilter.calculate(LimelightHelpers.getCameraPose3d_TargetSpace("limelight").getRotation().getY()), 0.08);
+    //  // LimelightHelpers.setPipelineIndex("limelight", 0);
+    //   yVel = yController
+    //       .calculate(xFilter2.calculate(LimelightHelpers.getCameraPose3d_TargetSpace("limelight").getZ()), -0.6); // forward
+    //                                                                                                               // backward
+    //   xVel = -xController.calculate(yFilter2.calculate(LimelightHelpers.getCameraPose3d_TargetSpace("limelight").getX()),
+    //       0.18);
+    //   rotVel = autoAimController.calculate(
+    //       aimFilter.calculate(LimelightHelpers.getCameraPose3d_TargetSpace("limelight").getRotation().getY()), 0.08);
 
-      SmartDashboard.putNumber("X Offset", LimelightHelpers.getCameraPose3d_TargetSpace("limelight").getX());
-      SmartDashboard.putNumber("Y Offset", LimelightHelpers.getCameraPose3d_TargetSpace("limelight").getZ());
-      SmartDashboard.putNumber("Angle Offset",
-          LimelightHelpers.getCameraPose3d_TargetSpace("limelight").getRotation().getY());
+    //   SmartDashboard.putNumber("X Offset", LimelightHelpers.getCameraPose3d_TargetSpace("limelight").getX());
+    //   SmartDashboard.putNumber("Y Offset", LimelightHelpers.getCameraPose3d_TargetSpace("limelight").getZ());
+    //   SmartDashboard.putNumber("Angle Offset",
+    //       LimelightHelpers.getCameraPose3d_TargetSpace("limelight").getRotation().getY());
 
-    }
+    // }
     //  else if (mController.getLeftBumper() && photonHasTargets) {
 
     //   double angle = result.getBestTarget().yaw;

@@ -75,8 +75,8 @@ private int m_rainbowFirstPixelHue=0;
   AddressableLED m_led = new AddressableLED(9);
   AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(96);
 
-  Limelight limelight = new Limelight();
-  PhotonCamera camera = new PhotonCamera("photon");
+ // Limelight limelight = new Limelight();
+ // PhotonCamera camera = new PhotonCamera("photon");
   DriveCommand drivetrain ;
 
   
@@ -182,7 +182,7 @@ Trigger intakeAlgaeIn;
     
 
     //continuously runs the DriveCommand. If some other command requires the swerve, that one will take priority
-     drivetrain = new DriveCommand(swerve, driverController, operatorController, limelight, camera);
+     drivetrain = new DriveCommand(swerve, driverController, operatorController);
     swerve.setDefaultCommand(drivetrain);
 
 
@@ -209,16 +209,15 @@ Trigger intakeAlgaeIn;
           m_ledBuffer.setRGB(i, 0, 0, 100); // grb
         }
       }
-      // if (driverController.getYButton()){
-      //   intake.setPivotAngle(10);
-      // } else{
-      //   intake.setPivotAngle(0);
-      // }
-      // if (driverController.getXButton()){
-      //   intake.setFuelIntakeSpeed(1);
-      // } else{
-      //   intake.setFuelIntakeSpeed(0);
-      // }
+    }
+      if (driverController.getYButton()){
+        shooter.setFeederSpeed(-1);
+        shooter.setSpindexterSpeed(-1);
+      } else{
+        shooter.setFeederSpeed(0);
+        shooter.setSpindexterSpeed(0);
+      }
+
 
 
       //if auto aiming, set every other LED white, if aiming for algae make them cyan
@@ -227,7 +226,7 @@ Trigger intakeAlgaeIn;
           m_ledBuffer.setRGB(i, 255, 255, 0); // grb
         } 
       }
-      }
+      
 
 
       // for (int i = 1; i < 96; i += 1) {
@@ -289,10 +288,10 @@ Trigger intakeAlgaeIn;
 
 
     //Commands/Bindings 
-    startIntake.whileTrue(intake.startFuelIntakeCmd(1));
+    startIntake.whileTrue(intake.startFuelIntakeCmd(1.0));
     intakeUp.whileTrue(intake.intakePivot(0)); 
-    intakeDown.whileTrue(intake.intakePivot(12));
-    reverseIntake.whileTrue(intake.startFuelIntakeCmd(-.5));
+    intakeDown.whileTrue(intake.intakePivot(13.4));
+    //reverseIntake.whileTrue(intake.startFuelIntakeCmd(-.5));
     shoot.whileTrue(shooter.shootCommand());
 
   }
