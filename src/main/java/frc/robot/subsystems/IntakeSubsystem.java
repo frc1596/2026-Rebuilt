@@ -103,11 +103,6 @@ public class IntakeSubsystem extends SubsystemBase{
         return(intakeFuel.get());
     }
 
-    public Command stopFuelIntake()
-    {
-        return this.run(()->intakeFuel.set(0));
-    }
-
     public Command startFuelIntakeCmd(double speed)
     {
         return this.startEnd(() -> setFuelIntakeSpeed(speed),() -> setFuelIntakeSpeed(0.0));

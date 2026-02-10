@@ -71,14 +71,14 @@ public class DriveCommand extends Command {
     double driveDirection = 0;
     double driveMagnitude = 0;
 
-    yVel = -mController.getLeftY() * 0.25;
-    xVel = -mController.getLeftX() * 0.25;
+    yVel = -mController.getLeftY() * 0.5;
+    xVel = -mController.getLeftX() * 0.5;
 
     // Trigger Drive Method (comment out these 4 lines to go back to normal drive)
-    driveDirection = Math.atan2(yVel, xVel);
-    driveMagnitude = mController.getRightTriggerAxis();
-    yVel = Math.sin(driveDirection) * driveMagnitude;
-    xVel = Math.cos(driveDirection) * driveMagnitude;
+    // driveDirection = Math.atan2(yVel, xVel);
+    // driveMagnitude = mController.getRightTriggerAxis();
+    // yVel = Math.sin(driveDirection) * driveMagnitude;
+    // xVel = Math.cos(driveDirection) * driveMagnitude;
 
     // if (ElevatorSubsystem.elevatorLevel >= 1){
     // driveFactor =- 0.02;

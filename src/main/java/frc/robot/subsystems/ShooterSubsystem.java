@@ -82,7 +82,7 @@ public class ShooterSubsystem extends SubsystemBase{
         
         public void setSpindexterSpeed(double speed)
         {
-            spindexter.set(speed);
+            spindexter.set(-1 * speed);
         }
 
         public void doNothing()
@@ -97,7 +97,7 @@ public class ShooterSubsystem extends SubsystemBase{
         
         public void setFeederSpeed(double speed)
         {
-            feeder.set(speed);
+            feeder.set(-1 * speed);
         }
 
         public void setShootSpeed(double speed)
@@ -138,8 +138,8 @@ public class ShooterSubsystem extends SubsystemBase{
             }
             else if (getShootOneSpeed() > 10 &&  getShootTwoSpeed() > 10) // if the shooters are up to speed 
             {
-                setSpindexterSpeed(1);  // start everything else
-               // setFeederSpeed(1);
+                setSpindexterSpeed(-1);  // start everything else
+                setFeederSpeed(1);
             }
             else{
                 doNothing();

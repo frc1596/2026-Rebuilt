@@ -210,13 +210,13 @@ Trigger intakeAlgaeIn;
         }
       }
     }
-      if (driverController.getYButton()){
-        shooter.setFeederSpeed(-1);
-        shooter.setSpindexterSpeed(-1);
-      } else{
-        shooter.setFeederSpeed(0);
-        shooter.setSpindexterSpeed(0);
-      }
+      // if (driverController.getYButton()){
+      //   shooter.setFeederSpeed(-1);
+      //   shooter.setSpindexterSpeed(-1);
+      // } else{
+      //   shooter.setFeederSpeed(0);
+      //   shooter.setSpindexterSpeed(0);
+      // }
 
 
 
@@ -284,7 +284,7 @@ Trigger intakeAlgaeIn;
     Trigger intakeDown = operatorController.povDown(); 
     Trigger reverseIntake = operatorController.b();
     //shoot buttons
-    Trigger shoot = operatorController.rightBumper();
+    Trigger shoot = operatorController.rightTrigger();
 
 
     //Commands/Bindings 
