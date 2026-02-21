@@ -14,6 +14,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
@@ -57,20 +58,19 @@ import frc.robot.subsystems.VisionSubsytem;
  * project.
  */
 public class Robot extends TimedRobot {
+  XboxController driverController = new XboxController(0);
+  CommandXboxController operatorController = new CommandXboxController(1);
 
   private Command m_autonomousCommand;
   private final VisionSubsytem vision = new VisionSubsytem();
   private final SwerveSubsystem swerve = new SwerveSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
-  private final ShooterSubsystem shooter = new ShooterSubsystem(vision);
+  private final ShooterSubsystem shooter = new ShooterSubsystem(vision, operatorController);
 
   // Sensor if we need it later 
   //public static DigitalInput coralSensor = new DigitalInput(7);
 
 private int m_rainbowFirstPixelHue=0;
-
-  XboxController driverController = new XboxController(0);
-  CommandXboxController operatorController = new CommandXboxController(1);
 
   AddressableLED m_led = new AddressableLED(9);
   AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(96);
@@ -210,15 +210,18 @@ Trigger intakeAlgaeIn;
         }
       }
     }
+
       // if (driverController.getYButton()){
-      //   shooter.setFeederSpeed(-1);
-      //   shooter.setSpindexterSpeed(-1);
+      //   shooter.setFeederSpeed(1);
+      //   shooter.setSpindexterSpeed(1);
       // } else{
       //   shooter.setFeederSpeed(0);
       //   shooter.setSpindexterSpeed(0);
       // }
 
-
+// if(operatorController.leftBumper().getAsBoolean()){
+//   shooter.setSpindexterSpeed(.5);
+// }
 
       //if auto aiming, set every other LED white, if aiming for algae make them cyan
       if(driverController.getLeftBumperButton()){
@@ -227,7 +230,9 @@ Trigger intakeAlgaeIn;
         } 
       }
       
-
+// if(driverController.getLeftBumperButton()){
+//   shooter.setSpindexterSpeed(0.5);
+// }
 
       // for (int i = 1; i < 96; i += 1) {
       //   m_ledBuffer.setRGB(i, 0, 0, 0); // grb
@@ -284,7 +289,7 @@ Trigger intakeAlgaeIn;
     Trigger intakeDown = operatorController.povDown(); 
     Trigger reverseIntake = operatorController.b();
     //shoot buttons
-    Trigger shoot = operatorController.rightTrigger();
+    Trigger shoot = operatorController.rightBumper();
 
 
     //Commands/Bindings 
@@ -292,7 +297,7 @@ Trigger intakeAlgaeIn;
     intakeUp.whileTrue(intake.intakePivot(0)); 
     intakeDown.whileTrue(intake.intakePivot(13.4));
     //reverseIntake.whileTrue(intake.startFuelIntakeCmd(-.5));
-    shoot.whileTrue(shooter.shootCommand());
+  shoot.whileTrue(shooter.shootCommand().repeatedly());
 
   }
   private void rainbow() {
