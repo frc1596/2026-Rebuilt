@@ -70,8 +70,8 @@ public class DriveCommand extends Command {
     double driveDirection = 0;
     double driveMagnitude = 0;
 
-    yVel = -mController.getLeftY() * 0.8;
-    xVel = -mController.getLeftX() * 0.8;
+    yVel = mController.getLeftY() * 0.8;
+    xVel = mController.getLeftX() * 0.8;
 
     // Trigger Drive Method (comment out these 4 lines to go back to normal drive)
     driveDirection = Math.atan2(yVel, xVel);

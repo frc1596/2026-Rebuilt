@@ -24,9 +24,14 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.units.measure.Torque;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -47,33 +52,31 @@ public class ShooterSubsystem extends SubsystemBase {
     private final TalonFX shootTwo = new TalonFX(55);
     private final VelocityVoltage m_VelocityVoltage = new VelocityVoltage(0);
     private final RelativeEncoder mHoodEncoder;
+    private final RelativeEncoder mrotateencoder;
     private final SparkClosedLoopController mHoodPID;
+    //private final SparkClosedLoopController mrotatePID;
+
 
     private final TrapezoidProfile m_pivotProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(60, 200));
     private TrapezoidProfile.State m_hoodGoal = new TrapezoidProfile.State(0,0); 
     private TrapezoidProfile.State m_hoodsetpoint = new TrapezoidProfile.State(0,0);
  
+
+    // private TrapezoidProfile.State m_rotategoal = new TrapezoidProfile.State(0,0); 
+    // private TrapezoidProfile.State m_rotatesetpoint = new TrapezoidProfile.State(0,0);
+ private final Constraints m_rotateprofile = new Constraints(.05, 0);
+
+    LinearFilter filter = LinearFilter.movingAverage(5);
+    LinearFilter shootfilter = LinearFilter.movingAverage(5);
+    LinearFilter rotatefilter = LinearFilter.movingAverage(5);
+
     // private final VisionSubsytem vision;
 
-    // private static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> shootMap = new InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble>(
-    //         null, null);
-    // static {
-    //     shootMap.put(new InterpolatingDouble(0.0), new InterpolatingDouble(45.0));// ~6 ft
-    //     shootMap.put(new InterpolatingDouble(1.0), new InterpolatingDouble(50.0));// ~9ft
-    //     shootMap.put(new InterpolatingDouble(2.0), new InterpolatingDouble(55.0));// ~12 ft
-    //     shootMap.put(new InterpolatingDouble(3.0), new InterpolatingDouble(60.0));// ~15 ft
-    //     shootMap.put(new InterpolatingDouble(4.0), new InterpolatingDouble(65.0));// ~18 ft
-    //}
-    private static InterpolatingTreeMap<InterpolatingDouble, InterpolatingDouble> hoodmap = new InterpolatingTreeMap<>(
-            null, null);
-    static {
-        hoodmap.put(new InterpolatingDouble(5.0), new InterpolatingDouble(-3.0));// ~6 ft
-        hoodmap.put(new InterpolatingDouble(4.0), new InterpolatingDouble(-2.5));// ~9ft
-        hoodmap.put(new InterpolatingDouble(3.0), new InterpolatingDouble(-2.0));// ~12 ft
-        hoodmap.put(new InterpolatingDouble(2.0), new InterpolatingDouble(-1.5));// ~15 ft
-        hoodmap.put(new InterpolatingDouble(1.0), new InterpolatingDouble(-1.0));
-        hoodmap.put(new InterpolatingDouble(0.0), new InterpolatingDouble(-0.4));// ~18 ft
-    }
+private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01, 0, 0, m_rotateprofile);
+
+    private static InterpolatingDoubleTreeMap hoodmap = new InterpolatingDoubleTreeMap();
+     private static InterpolatingDoubleTreeMap shootmap = new InterpolatingDoubleTreeMap();
+
 
     CommandXboxController moperatorController;
     VisionSubsytem mvision;
@@ -92,7 +95,6 @@ public class ShooterSubsystem extends SubsystemBase {
         spindexter.configure(spindexterConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
        
         turretHoodConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(1.6,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
-
         turretHoodConfig.idleMode(IdleMode.kBrake);
         turretHoodConfig.encoder.positionConversionFactor(1);
         turretHoodConfig.encoder.velocityConversionFactor(1);
@@ -103,7 +105,31 @@ public class ShooterSubsystem extends SubsystemBase {
         mHoodEncoder.setPosition(0); 
         mHoodPID = turretHood.getClosedLoopController(); 
 
+        //turretRotateConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(1.0,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
+        turretRotateConfig.idleMode(IdleMode.kBrake);
+        turretRotateConfig.encoder.positionConversionFactor(1);
+        turretRotateConfig.encoder.velocityConversionFactor(1);
+        turretRotateConfig.smartCurrentLimit(15);
+        turretRotateConfig.inverted(false);
+        turretRotate.configure(turretHoodConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
+        mrotateencoder = turretRotate.getEncoder();
+        mrotateencoder.setPosition(0); 
+        //mrotatePID = turretRotate.getClosedLoopController(); 
 
+        hoodmap.put(4.5,3.0);// ~6 ft
+        hoodmap.put(4.0, 2.5);// ~9ft
+        hoodmap.put(3.0, 2.0);// ~12 ft
+        hoodmap.put(2.4, 1.4);
+        hoodmap.put(2.0,1.2);// ~15 ft
+        hoodmap.put(1.0,1.0);// ~15 ft
+        hoodmap.put(0.0,0.0);// ~15 ft
+
+        shootmap.put(4.0, 80.0);// ~9ft
+        shootmap.put(3.0, 70.0);// ~12 ft
+        shootmap.put(2.4, 60.0);
+        shootmap.put(2.0,55.0);// ~15 ft
+        shootmap.put(1.0,50.0);// ~15 ft
+        shootmap.put(0.0,45.0);// ~15 ft
 
         TalonFXConfiguration feederConfig = new TalonFXConfiguration();
         feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -124,7 +150,7 @@ public class ShooterSubsystem extends SubsystemBase {
         TalonFXConfiguration shoottwoConfig = new TalonFXConfiguration();
         shoottwoConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         shoottwoConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        shoottwoConfig.CurrentLimits.SupplyCurrentLimit = 20;
+        shoottwoConfig.CurrentLimits.SupplyCurrentLimit = 40;
         shoottwoConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         shoottwoConfig.Slot0.kV = .1;
         shoottwoConfig.Slot0.kP = .3;
@@ -136,39 +162,54 @@ public class ShooterSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         //LimelightHelpers.getTV("limelte");
-        Pose3d position = LimelightHelpers.getCameraPose3d_TargetSpace("limelight-limelte");
-       
+        Pose3d position = LimelightHelpers.getCameraPose3d_TargetSpace("limelight");
+      
+        autoaimController.setGoal(0);
+        autoaimController.calculate(LimelightHelpers.getTX("limelight"));
         // Transform3d pose = LimelightHelpers.getBotPose3d_TargetSpace("limelight");
+        double distance = Math.sqrt(position.getZ()*position.getZ()+position.getX()*position.getX());
+        double hoodAngle = hoodmap.get(filter.calculate(distance));
+                double shooterSpeed = shootmap.get(shootfilter.calculate(distance));
+        double rotateangle = Math.atan2(-position.getZ(), position.getX());
+        rotateTurret(autoaimController.calculate(LimelightHelpers.getTX("limelight")));
 
 
-        double hoodAngle = -hoodmap.get(new InterpolatingDouble(-position.getZ())).value;
-        
-    //setHoodAngle(hoodAngle);
-        //m_hoodsetpoint = m_pivotProfile.calculate(.02, m_hoodsetpoint, m_hoodGoal);
-SmartDashboard.putNumber("ZDist", position.getZ());
+        m_hoodsetpoint = m_pivotProfile.calculate(.02, m_hoodsetpoint, m_hoodGoal);
+       // m_rotatesetpoint = m_rotateprofile.calculate(.02, m_rotatesetpoint, m_rotategoal);
+
+SmartDashboard.putNumber("Dist", distance);
 SmartDashboard.putNumber("Hoodangle", hoodAngle);
+SmartDashboard.putNumber("rotate", rotateangle);
+
+
 
         //Set new position to the PID Controller
-     //mHoodPID.setReference(m_hoodsetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
-   
+     mHoodPID.setReference(m_hoodsetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
+    //mrotatePID.setReference(m_rotatesetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
+
+
     SmartDashboard.putNumber("bob", getShootOneSpeed());
 
         if (moperatorController.rightBumper().getAsBoolean()) {
+                setHoodAngle(hoodAngle);
+
             if (getShootOneSpeed() == 0.0 && getShootTwoSpeed() == 0.0) // if the shooters have not been started
             {
-                setShootSpeed(65); // start the shooter
-            } else if (Math.abs(getShootOneSpeed()) > 60.0 && (Math.abs(getShootTwoSpeed()) > 60.0)) // if the shooters
+                setShootSpeed(shooterSpeed); // start the shooter
+            } else if (Math.abs(getShootOneSpeed()) > (shooterSpeed-5.0)) // if the shooters
                                                                                                    // are up to speed
             {
                 setSpindexterSpeed(-1.0); // start everything else
                 setFeederSpeed(1.0);
-                setShootSpeed(65); // start the shooter
+                setShootSpeed(shooterSpeed); // start the shooter
             } else {
                 // doNothing();
             }
         }else {
             setSpindexterSpeed(0);
             setFeederSpeed(0);
+                            setHoodAngle(0);
+
         }
     }
     public void setHoodAngle(double angle)
@@ -187,8 +228,9 @@ SmartDashboard.putNumber("Hoodangle", hoodAngle);
     }
 
     public void rotateTurret(double angle) {
+        //m_rotategoal = new TrapezoidProfile.State(angle, 0);  
         turretRotate.set(angle);
-    }
+      }
 
     public void setFeederSpeed(double speed) {
         feeder.set(-1.0 * speed);

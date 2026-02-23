@@ -290,6 +290,7 @@ Trigger intakeAlgaeIn;
     Trigger reverseIntake = operatorController.b();
     //shoot buttons
     Trigger shoot = operatorController.rightBumper();
+    
 
 
     //Commands/Bindings 
