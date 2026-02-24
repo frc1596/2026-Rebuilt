@@ -31,7 +31,7 @@ public class SwerveDrive {
     private final SwerveDriveKinematics mKinematics;
     private final SwerveDrivePoseEstimator mSwerveDrivePoseEstimator;
     private final HolonomicDriveController mDriveController;
-    private final DoubleSupplier mGyroAngle;
+    public final DoubleSupplier mGyroAngle;
     private final ProfiledPIDController rotationPIDController = new ProfiledPIDController(15,.1,.1,new TrapezoidProfile.Constraints(500, 500));
 
     //Network Table Data
@@ -70,8 +70,6 @@ public class SwerveDrive {
         mSwerveDrivePoseEstimator = new SwerveDrivePoseEstimator(mKinematics, Rotation2d.fromDegrees(mGyroAngle.getAsDouble()), states, new Pose2d(), VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(360)));
 
         Arrays.stream(mModules).forEach(SwerveModule::init);
-
-        
     }
 
     public void periodic(){
@@ -82,9 +80,6 @@ public class SwerveDrive {
         
         mSwerveDrivePoseEstimator.update(Rotation2d.fromDegrees(mGyroAngle.getAsDouble()), states);
     }
-
-
-
 
     public void setLocation(double x, double y, double angle){
         Pose2d newPose = new Pose2d(x, y, Rotation2d.fromDegrees(angle));

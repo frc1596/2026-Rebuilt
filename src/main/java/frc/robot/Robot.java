@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.function.BooleanSupplier;
 
+import org.deceivers.swerve.SwerveDrive;
 import org.photonvision.PhotonCamera;
 
 //import com.kauailabs.navx.frc.AHRS;
@@ -63,9 +64,9 @@ public class Robot extends TimedRobot {
 
   private Command m_autonomousCommand;
   private final VisionSubsytem vision = new VisionSubsytem();
-  private final SwerveSubsystem swerve = new SwerveSubsystem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
-  private final ShooterSubsystem shooter = new ShooterSubsystem(vision, operatorController);
+  private final SwerveSubsystem swerve = new SwerveSubsystem(); 
+  private final ShooterSubsystem shooter = new ShooterSubsystem(vision, operatorController, swerve);
 
   // Sensor if we need it later 
   //public static DigitalInput coralSensor = new DigitalInput(7);
@@ -290,15 +291,14 @@ Trigger intakeAlgaeIn;
     Trigger reverseIntake = operatorController.b();
     //shoot buttons
     Trigger shoot = operatorController.rightBumper();
+    Trigger turretright = operatorController.povLeft();
     
-
 
     //Commands/Bindings 
     startIntake.whileTrue(intake.startFuelIntakeCmd(1.0));
     intakeUp.whileTrue(intake.intakePivot(0)); 
     intakeDown.whileTrue(intake.intakePivot(13.4));
     //reverseIntake.whileTrue(intake.startFuelIntakeCmd(-.5));
-  shoot.whileTrue(shooter.shootCommand().repeatedly());
 
   }
   private void rainbow() {

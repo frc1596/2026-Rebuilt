@@ -28,6 +28,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -41,6 +42,9 @@ import frc.robot.LimelightHelpers.LimelightResults;
 import frc.robot.util.Interpolable;
 import frc.robot.util.InterpolatingDouble;
 
+import static edu.wpi.first.units.Units.Rotation;
+
+import org.deceivers.swerve.SwerveDrive;
 
 public class ShooterSubsystem extends SubsystemBase {
 
@@ -80,9 +84,11 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
 
     CommandXboxController moperatorController;
     VisionSubsytem mvision;
-    public ShooterSubsystem(VisionSubsytem vision, CommandXboxController operatorController) {
+    SwerveSubsystem mSwerve; 
+    public ShooterSubsystem(VisionSubsytem vision, CommandXboxController operatorController, SwerveSubsystem swerve) {
         moperatorController = operatorController;
         mvision = vision;
+        mSwerve = swerve; 
         // this.vision = vision;
         SparkMaxConfig spindexterConfig = new SparkMaxConfig();
         SparkMaxConfig turretHoodConfig = new SparkMaxConfig();
@@ -177,18 +183,17 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         m_hoodsetpoint = m_pivotProfile.calculate(.02, m_hoodsetpoint, m_hoodGoal);
        // m_rotatesetpoint = m_rotateprofile.calculate(.02, m_rotatesetpoint, m_rotategoal);
 
-SmartDashboard.putNumber("Dist", distance);
-SmartDashboard.putNumber("Hoodangle", hoodAngle);
-SmartDashboard.putNumber("rotate", rotateangle);
-
-
+        SmartDashboard.putNumber("Dist", distance);
+        SmartDashboard.putNumber("Hoodangle", hoodAngle);
+        SmartDashboard.putNumber("rotate", rotateangle);
 
         //Set new position to the PID Controller
      mHoodPID.setReference(m_hoodsetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
     //mrotatePID.setReference(m_rotatesetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
 
-
-    SmartDashboard.putNumber("bob", getShootOneSpeed());
+    double gyroAngle = mSwerve.getGyroAngle(); 
+    SmartDashboard.putNumber("Gyro Angle:", gyroAngle);
+    SmartDashboard.putNumber("Shooter Speed", getShootOneSpeed());
 
         if (moperatorController.rightBumper().getAsBoolean()) {
                 setHoodAngle(hoodAngle);
@@ -250,27 +255,4 @@ SmartDashboard.putNumber("rotate", rotateangle);
         return (shootTwo.getRotorVelocity().getValueAsDouble());
     }
 
-    // it starts the shoot
-    public void startShoot() {
-
-
-        // if (getShootOneSpeed() == 0.0 && getShootTwoSpeed() == 0.0) // if the
-        // shooters have not been started
-        // {
-        // setShootSpeed(0.3); // start the shooter
-        // }
-        // else if (Math.abs(getShootOneSpeed()) > 0.1 && (Math.abs(getShootTwoSpeed())
-        // > 0.1)) // if the shooters are up to speed
-        // {
-        // setSpindexterSpeed(-.4); // start everything else
-        // setFeederSpeed(.1);
-        // }
-        // else{
-        // //doNothing();
-        // }
-    }
-
-    public Command shootCommand() {
-        return this.startEnd(() -> startShoot(), () -> stopshoot());
-    }
 }
