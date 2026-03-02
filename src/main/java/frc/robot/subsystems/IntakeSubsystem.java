@@ -22,9 +22,9 @@ import frc.robot.Robot;
 
 
 public class IntakeSubsystem extends SubsystemBase{
-    //Update once know pls - Ivy
     private final  SparkMax intakePivot = new SparkMax(14, MotorType.kBrushless);
     private final  SparkMax intakeFuel = new SparkMax(13, MotorType.kBrushless);
+    private final  SparkMax intakeFuelHelper = new SparkMax(16, MotorType.kBrushless);
 
     SparkMaxConfig intakePivotConfig = new SparkMaxConfig();
     SparkMaxConfig intakeFuelConfig = new SparkMaxConfig();
@@ -32,7 +32,7 @@ public class IntakeSubsystem extends SubsystemBase{
     private final RelativeEncoder mIntakeEncoder;
     private final SparkClosedLoopController mIntakePID;
 
-    private final TrapezoidProfile m_pivotProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(60, 200));
+    private final TrapezoidProfile m_pivotProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(50, 200));
     private TrapezoidProfile.State m_pivotGoal = new TrapezoidProfile.State(0,0); 
     private TrapezoidProfile.State m_pivotSetpoint = new TrapezoidProfile.State(0,0);
  
@@ -42,10 +42,10 @@ public class IntakeSubsystem extends SubsystemBase{
     {
         //intakepivitconfig
         intakePivotConfig.idleMode(IdleMode.kBrake);
-        intakePivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(1.6,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
+        intakePivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(2.0,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
         intakePivotConfig.encoder.positionConversionFactor(1); 
         intakePivotConfig.encoder.velocityConversionFactor(1); 
-        intakePivotConfig.smartCurrentLimit(50);
+        intakePivotConfig.smartCurrentLimit(40);
         intakePivotConfig.inverted(false); 
 
         intakePivot.configure(intakePivotConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
@@ -60,7 +60,7 @@ public class IntakeSubsystem extends SubsystemBase{
         intakeFuelConfig.inverted(false); 
 
         intakeFuel.configure(intakeFuelConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
-
+        intakeFuelHelper.configure(intakeFuelConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
     }
 
 
@@ -96,6 +96,7 @@ public class IntakeSubsystem extends SubsystemBase{
     public void setFuelIntakeSpeed(double speed)
     {
         intakeFuel.set(speed); 
+        intakeFuelHelper.set(speed);
     }
  
     public double getFuelIntakeSpeed()
@@ -107,9 +108,4 @@ public class IntakeSubsystem extends SubsystemBase{
     {
         return this.startEnd(() -> setFuelIntakeSpeed(speed),() -> setFuelIntakeSpeed(0.0));
     }
-    
-    // public Command runFuelIntakesAuto(double speed)
-    // {
-    //     return this.startEnd(() -> startFuelIntake(speed), () -> Commands.waitSeconds(1));
-    // }
 }

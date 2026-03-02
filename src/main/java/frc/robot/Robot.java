@@ -63,10 +63,10 @@ public class Robot extends TimedRobot {
   CommandXboxController operatorController = new CommandXboxController(1);
 
   private Command m_autonomousCommand;
-  private final VisionSubsytem vision = new VisionSubsytem();
+  //private final VisionSubsytem vision = new VisionSubsytem();
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final SwerveSubsystem swerve = new SwerveSubsystem(); 
-  private final ShooterSubsystem shooter = new ShooterSubsystem(vision, operatorController, swerve);
+  private final ShooterSubsystem shooter = new ShooterSubsystem(operatorController, swerve);
 
   // Sensor if we need it later 
   //public static DigitalInput coralSensor = new DigitalInput(7);
@@ -292,12 +292,13 @@ Trigger intakeAlgaeIn;
     //shoot buttons
     Trigger shoot = operatorController.rightBumper();
     Trigger turretright = operatorController.povLeft();
-    
+    Trigger blindshoot = operatorController.leftBumper();
+
 
     //Commands/Bindings 
     startIntake.whileTrue(intake.startFuelIntakeCmd(1.0));
-    intakeUp.whileTrue(intake.intakePivot(0)); 
-    intakeDown.whileTrue(intake.intakePivot(13.4));
+    intakeUp.whileTrue(intake.intakePivot(3.1)); 
+    intakeDown.whileTrue(intake.intakePivot(12.2));
     //reverseIntake.whileTrue(intake.startFuelIntakeCmd(-.5));
 
   }

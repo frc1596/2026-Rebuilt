@@ -27,12 +27,14 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.LinearFilter;
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.interpolation.InterpolatingTreeMap;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Torque;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -43,6 +45,10 @@ import frc.robot.util.Interpolable;
 import frc.robot.util.InterpolatingDouble;
 
 import static edu.wpi.first.units.Units.Rotation;
+
+import java.security.cert.TrustAnchor;
+
+import javax.print.attribute.standard.Media;
 
 import org.deceivers.swerve.SwerveDrive;
 
@@ -70,10 +76,13 @@ public class ShooterSubsystem extends SubsystemBase {
     // private TrapezoidProfile.State m_rotatesetpoint = new TrapezoidProfile.State(0,0);
  private final Constraints m_rotateprofile = new Constraints(.05, 0);
 
+    // MedianFilter filter = new MedianFilter(19);
+    // MedianFilter shootfilter = new MedianFilter(19);
+    // MedianFilter rotatefilter = new MedianFilter(19);
+
     LinearFilter filter = LinearFilter.movingAverage(5);
     LinearFilter shootfilter = LinearFilter.movingAverage(5);
     LinearFilter rotatefilter = LinearFilter.movingAverage(5);
-
     // private final VisionSubsytem vision;
 
 private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01, 0, 0, m_rotateprofile);
@@ -85,9 +94,9 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
     CommandXboxController moperatorController;
     VisionSubsytem mvision;
     SwerveSubsystem mSwerve; 
-    public ShooterSubsystem(VisionSubsytem vision, CommandXboxController operatorController, SwerveSubsystem swerve) {
+    public ShooterSubsystem(CommandXboxController operatorController, SwerveSubsystem swerve) {
         moperatorController = operatorController;
-        mvision = vision;
+       /// mvision = vision;
         mSwerve = swerve; 
         // this.vision = vision;
         SparkMaxConfig spindexterConfig = new SparkMaxConfig();
@@ -110,14 +119,18 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         mHoodEncoder = turretHood.getEncoder();
         mHoodEncoder.setPosition(0); 
         mHoodPID = turretHood.getClosedLoopController(); 
-
+        
+        turretRotateConfig.softLimit.forwardSoftLimit(10);
+        turretRotateConfig.softLimit.reverseSoftLimit(-10);
+        turretRotateConfig.softLimit.forwardSoftLimitEnabled(true);
+        turretRotateConfig.softLimit.reverseSoftLimitEnabled(true);
         //turretRotateConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(1.0,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
         turretRotateConfig.idleMode(IdleMode.kBrake);
         turretRotateConfig.encoder.positionConversionFactor(1);
         turretRotateConfig.encoder.velocityConversionFactor(1);
-        turretRotateConfig.smartCurrentLimit(15);
+        turretRotateConfig.smartCurrentLimit(40);
         turretRotateConfig.inverted(false);
-        turretRotate.configure(turretHoodConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
+        turretRotate.configure(turretRotateConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
         mrotateencoder = turretRotate.getEncoder();
         mrotateencoder.setPosition(0); 
         //mrotatePID = turretRotate.getClosedLoopController(); 
@@ -130,8 +143,8 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         hoodmap.put(1.0,1.0);// ~15 ft
         hoodmap.put(0.0,0.0);// ~15 ft
 
-        shootmap.put(4.0, 80.0);// ~9ft
-        shootmap.put(3.0, 70.0);// ~12 ft
+        shootmap.put(4.0, 70.0);// ~9ft
+        shootmap.put(3.0, 65.0);// ~12 ft
         shootmap.put(2.4, 60.0);
         shootmap.put(2.0,55.0);// ~15 ft
         shootmap.put(1.0,50.0);// ~15 ft
@@ -146,9 +159,11 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         TalonFXConfiguration shootoneConfig = new TalonFXConfiguration();
         shootoneConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         shootoneConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        shootoneConfig.CurrentLimits.SupplyCurrentLimit = 40;
-        shootoneConfig.Slot0.kV = .1;
-        shootoneConfig.Slot0.kP = .3;
+        shootoneConfig.CurrentLimits.SupplyCurrentLimit = 70;
+        shootoneConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
+        shootoneConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+        shootoneConfig.Slot0.kV = .11;
+        shootoneConfig.Slot0.kP = .32;
         shootoneConfig.Slot0.kI = 0;
         shootoneConfig.Slot0.kD = 0;
         shootOne.getConfigurator().apply(shootoneConfig, 0.05);
@@ -156,44 +171,65 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         TalonFXConfiguration shoottwoConfig = new TalonFXConfiguration();
         shoottwoConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         shoottwoConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        shoottwoConfig.CurrentLimits.SupplyCurrentLimit = 40;
+        shootoneConfig.CurrentLimits.SupplyCurrentLimit = 70;
+        shootoneConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
+        shootoneConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
         shoottwoConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
-        shoottwoConfig.Slot0.kV = .1;
-        shoottwoConfig.Slot0.kP = .3;
+        shoottwoConfig.Slot0.kV = .11;
+        shoottwoConfig.Slot0.kP = .32;
         shoottwoConfig.Slot0.kI = 0;
         shoottwoConfig.Slot0.kD = 0;
         shootTwo.getConfigurator().apply(shoottwoConfig, 0.05);
     }
-    
+
+    public double prevangle=0;
+    public double distance = 0;
+
     @Override
     public void periodic() {
-        //LimelightHelpers.getTV("limelte");
+        double hoodAngle = 0;
+        double shooterSpeed = 0;
         Pose3d position = LimelightHelpers.getCameraPose3d_TargetSpace("limelight");
-      
+       
         autoaimController.setGoal(0);
         autoaimController.calculate(LimelightHelpers.getTX("limelight"));
-        // Transform3d pose = LimelightHelpers.getBotPose3d_TargetSpace("limelight");
-        double distance = Math.sqrt(position.getZ()*position.getZ()+position.getX()*position.getX());
-        double hoodAngle = hoodmap.get(filter.calculate(distance));
-                double shooterSpeed = shootmap.get(shootfilter.calculate(distance));
-        double rotateangle = Math.atan2(-position.getZ(), position.getX());
-        rotateTurret(autoaimController.calculate(LimelightHelpers.getTX("limelight")));
 
+        //if Limelight has a valid target,
+        if(LimelightHelpers.getTV("limelight")){
+            distance = Math.sqrt(position.getZ()*position.getZ()+position.getX()*position.getX());
+        }
+        
+            hoodAngle = hoodmap.get(filter.calculate(distance));
+            shooterSpeed = shootmap.get(shootfilter.calculate(distance));
+        
+        //  double rotateangle = Math.atan2(-position.getZ(), position.getX());
+          // double rotateturretleft=turretRotate.
+    
+        // rotateTurret(autoaimController.calculate(LimelightHelpers.getTX("limelight"))-angledif*.06);
+        // prevangle=gyroAngle;
+        
 
         m_hoodsetpoint = m_pivotProfile.calculate(.02, m_hoodsetpoint, m_hoodGoal);
        // m_rotatesetpoint = m_rotateprofile.calculate(.02, m_rotatesetpoint, m_rotategoal);
 
         SmartDashboard.putNumber("Dist", distance);
         SmartDashboard.putNumber("Hoodangle", hoodAngle);
-        SmartDashboard.putNumber("rotate", rotateangle);
+        SmartDashboard.putNumber("bob2", turretRotate.getEncoder().getPosition());
+        //SmartDashboard.putNumber("rotate", rotateangle);
 
         //Set new position to the PID Controller
      mHoodPID.setReference(m_hoodsetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
     //mrotatePID.setReference(m_rotatesetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
+    
+    double gyroAngle = mSwerve.getRotation();
+     double angledif=gyroAngle-prevangle;
+ 
+           rotateTurret(autoaimController.calculate(LimelightHelpers.getTX("limelight"))-angledif*.05);
 
-    double gyroAngle = mSwerve.getGyroAngle(); 
-    SmartDashboard.putNumber("Gyro Angle:", gyroAngle);
-    SmartDashboard.putNumber("Shooter Speed", getShootOneSpeed());
+           prevangle=gyroAngle;
+    
+    // SmartDashboard.putNumber("Gyro Angle:", gyroAngle);
+    // SmartDashboard.putNumber("Shooter Speed", getShootOneSpeed());
 
         if (moperatorController.rightBumper().getAsBoolean()) {
                 setHoodAngle(hoodAngle);
@@ -210,13 +246,26 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
             } else {
                 // doNothing();
             }
-        }else {
+        }else if(moperatorController.povLeft().getAsBoolean() && !LimelightHelpers.getTV("limelight")) {
+        
+            
+            }
+        else{
             setSpindexterSpeed(0);
             setFeederSpeed(0);
-                            setHoodAngle(0);
-
+            setHoodAngle(0);
+            setShootSpeed(0);
         }
+    if (moperatorController.leftBumper().getAsBoolean()) {
+                setHoodAngle(3);
+                setShootSpeed(70);
+                setSpindexterSpeed(-1);
+                setFeederSpeed(1);
     }
+
+    }
+    
+
     public void setHoodAngle(double angle)
     {
         m_hoodGoal = new TrapezoidProfile.State(angle, 0);
@@ -236,6 +285,14 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         //m_rotategoal = new TrapezoidProfile.State(angle, 0);  
         turretRotate.set(angle);
       }
+ 
+
+    // public void rotateturretleft(double angle) {
+    //     turretRotate.set(angle+5);
+    // }
+    // public void rotateturretright(double angle){
+    //     turretRotate.set(angle-5);
+    // }
 
     public void setFeederSpeed(double speed) {
         feeder.set(-1.0 * speed);

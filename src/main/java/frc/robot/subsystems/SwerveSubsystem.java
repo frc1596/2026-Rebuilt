@@ -199,6 +199,11 @@ int limelightlimiter = 0;
     odometry.resetPosition(new Rotation2d(gyro.getYaw()), getPositions(), pose);
   }
 
+  public double getGyroAngle()
+  {
+      return getPose().getRotation().getDegrees();
+  }
+
   public ChassisSpeeds getSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
   }

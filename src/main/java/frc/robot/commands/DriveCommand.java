@@ -43,7 +43,7 @@ public class DriveCommand extends Command {
   public double rotVel = 0;
 
   private boolean lastScan;
-  private double driveFactor = 0.85;
+  private double driveFactor = 0.4;
 
   //PhotonCamera camera;
 
@@ -70,14 +70,14 @@ public class DriveCommand extends Command {
     double driveDirection = 0;
     double driveMagnitude = 0;
 
-    yVel = mController.getLeftY() * 0.8;
-    xVel = mController.getLeftX() * 0.8;
+    yVel = mController.getLeftY() ;
+    xVel = mController.getLeftX() ;
 
     // Trigger Drive Method (comment out these 4 lines to go back to normal drive)
-    driveDirection = Math.atan2(yVel, xVel);
-    driveMagnitude = mController.getRightTriggerAxis();
-    yVel = Math.sin(driveDirection) * driveMagnitude;
-    xVel = Math.cos(driveDirection) * driveMagnitude;
+    // driveDirection = Math.atan2(yVel, xVel);
+    // driveMagnitude = mController.getRightTriggerAxis();
+    // yVel = Math.sin(driveDirection) * driveMagnitude;
+    // xVel = Math.cos(driveDirection) * driveMagnitude;
 
     // if (ElevatorSubsystem.elevatorLevel >= 1){
     // driveFactor =- 0.02;
