@@ -120,8 +120,8 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         mHoodEncoder.setPosition(0); 
         mHoodPID = turretHood.getClosedLoopController(); 
         
-        turretRotateConfig.softLimit.forwardSoftLimit(10);
-        turretRotateConfig.softLimit.reverseSoftLimit(-10);
+        turretRotateConfig.softLimit.forwardSoftLimit(10.5);
+        turretRotateConfig.softLimit.reverseSoftLimit(-10.5);
         turretRotateConfig.softLimit.forwardSoftLimitEnabled(true);
         turretRotateConfig.softLimit.reverseSoftLimitEnabled(true);
         //turretRotateConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(1.0,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
@@ -143,12 +143,12 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         hoodmap.put(1.0,1.0);// ~15 ft
         hoodmap.put(0.0,0.0);// ~15 ft
 
-        shootmap.put(4.0, 70.0);// ~9ft
-        shootmap.put(3.0, 65.0);// ~12 ft
-        shootmap.put(2.4, 60.0);
-        shootmap.put(2.0,55.0);// ~15 ft
-        shootmap.put(1.0,50.0);// ~15 ft
-        shootmap.put(0.0,45.0);// ~15 ft
+        shootmap.put(4.0, 65.0);// ~9ft
+        shootmap.put(3.0, 60.0);// ~12 ft
+        shootmap.put(2.4, 55.0);
+        shootmap.put(2.0,50.0);// ~15 ft
+        shootmap.put(1.0,45.0);// ~15 ft
+        shootmap.put(0.0,40.0);// ~15 ft
 
         TalonFXConfiguration feederConfig = new TalonFXConfiguration();
         feederConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
@@ -163,7 +163,8 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         shootoneConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
         shootoneConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
         shootoneConfig.Slot0.kV = .11;
-        shootoneConfig.Slot0.kP = .32;
+        shootoneConfig.Slot0.kP = .30;
+        shootoneConfig.Slot0.kS = 0.1;
         shootoneConfig.Slot0.kI = 0;
         shootoneConfig.Slot0.kD = 0;
         shootOne.getConfigurator().apply(shootoneConfig, 0.05);
@@ -176,8 +177,9 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         shootoneConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
         shoottwoConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         shoottwoConfig.Slot0.kV = .11;
-        shoottwoConfig.Slot0.kP = .32;
+        shoottwoConfig.Slot0.kP = .30;
         shoottwoConfig.Slot0.kI = 0;
+        shoottwoConfig.Slot0.kS = 0.1;
         shoottwoConfig.Slot0.kD = 0;
         shootTwo.getConfigurator().apply(shoottwoConfig, 0.05);
     }
@@ -190,7 +192,6 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         double hoodAngle = 0;
         double shooterSpeed = 0;
         Pose3d position = LimelightHelpers.getCameraPose3d_TargetSpace("limelight");
-       
         autoaimController.setGoal(0);
         autoaimController.calculate(LimelightHelpers.getTX("limelight"));
 
@@ -207,7 +208,6 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
     
         // rotateTurret(autoaimController.calculate(LimelightHelpers.getTX("limelight"))-angledif*.06);
         // prevangle=gyroAngle;
-        
 
         m_hoodsetpoint = m_pivotProfile.calculate(.02, m_hoodsetpoint, m_hoodGoal);
        // m_rotatesetpoint = m_rotateprofile.calculate(.02, m_rotatesetpoint, m_rotategoal);
@@ -220,19 +220,26 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         //Set new position to the PID Controller
      mHoodPID.setReference(m_hoodsetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
     //mrotatePID.setReference(m_rotatesetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
-    
-    double gyroAngle = mSwerve.getRotation();
+ double gyroAngle = 0.0;
+     gyroAngle = mSwerve.getRotation();
      double angledif=gyroAngle-prevangle;
- 
-           rotateTurret(autoaimController.calculate(LimelightHelpers.getTX("limelight"))-angledif*.05);
-
            prevangle=gyroAngle;
+
+if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().isReached() && !turretRotate.getForwardSoftLimit().isReached())
+{
+           rotateTurret(autoaimController.calculate(LimelightHelpers.getTX("limelight"))-(angledif*.05));
+
+}else{
+ rotateTurret(-moperatorController.getLeftX()*0.3-(angledif*.05));
+
+}
     
     // SmartDashboard.putNumber("Gyro Angle:", gyroAngle);
     // SmartDashboard.putNumber("Shooter Speed", getShootOneSpeed());
 
         if (moperatorController.rightBumper().getAsBoolean()) {
                 setHoodAngle(hoodAngle);
+
 
             if (getShootOneSpeed() == 0.0 && getShootTwoSpeed() == 0.0) // if the shooters have not been started
             {
@@ -249,19 +256,28 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         }else if(moperatorController.povLeft().getAsBoolean() && !LimelightHelpers.getTV("limelight")) {
         
             
-            }
+        }
+        //pass button
+        else if (moperatorController.leftBumper().getAsBoolean()) {
+        //need to add point to gyro 0 here
+        setHoodAngle(3);
+        setShootSpeed(70.0);
+        if (Math.abs(getShootOneSpeed()) > 65.0) // if the shooters                                                                                  // are up to speed
+        {
+            setSpindexterSpeed(-1.0); // start everything else
+            setFeederSpeed(1.0);
+        }
+
+    }
         else{
             setSpindexterSpeed(0);
             setFeederSpeed(0);
             setHoodAngle(0);
             setShootSpeed(0);
+            //rotateTurret(0);
         }
-    if (moperatorController.leftBumper().getAsBoolean()) {
-                setHoodAngle(3);
-                setShootSpeed(70);
-                setSpindexterSpeed(-1);
-                setFeederSpeed(1);
-    }
+
+
 
     }
     

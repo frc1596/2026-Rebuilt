@@ -43,7 +43,6 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommand;
 // Import the subsystems here 
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.LED;
 import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -71,10 +70,10 @@ public class Robot extends TimedRobot {
   // Sensor if we need it later 
   //public static DigitalInput coralSensor = new DigitalInput(7);
 
-private int m_rainbowFirstPixelHue=0;
+private int m_rainbowFirstPixelHue=90;
 
-  AddressableLED m_led = new AddressableLED(9);
-  AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(96);
+  AddressableLED m_led = new AddressableLED(2);
+  AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(120);
 
  // Limelight limelight = new Limelight();
  // PhotonCamera camera = new PhotonCamera("photon");
@@ -84,7 +83,7 @@ private int m_rainbowFirstPixelHue=0;
   SendableChooser<Command> autoChooser = new SendableChooser<>();
 
 
-Trigger intakeAlgaeIn;
+
   /**
    * This function is run when the robot is first started up and should be used
    * for any
@@ -96,7 +95,9 @@ Trigger intakeAlgaeIn;
 
     configureButtonBindings();
 
-    m_led.setLength(96);
+    m_led.setLength(120);
+
+    
     m_led.start();
 
     //Named commands for the pathplanner auto
@@ -132,30 +133,27 @@ Trigger intakeAlgaeIn;
     SmartDashboard.putString("Selected Auto:", autoChooser.getSelected().getName());
 
     CommandScheduler.getInstance().run();
-  }
-
-  /** This function is called once each time the robot enters Disabled mode. */
-  @Override
-  public void disabledInit() {
-
-    //turns each LED off when the robot is disabled
-    for (int i = 0; i < 96; i++) {
-      m_ledBuffer.setRGB(i, 0, 0, 0); // grb
     }
-    m_led.setData(m_ledBuffer);
-  }
-
+    
+    /** This function is called once each time the robot enters Disabled mode. */
+    @Override
+    public void disabledInit() {}
+    
+    //turns each LED off when the robot is disabled
+    //   for (int i = 0; i < 96; i++) {
+      //     m_ledBuffer.setRGB(i, 0, 0, 0); // grb
+      //   }
+      //   m_led.setData(m_ledBuffer);
+      // }
+  
   @Override
   public void disabledPeriodic() {
     // SmartDashboard.putNumber("FID", limelight.getFid());
     // SmartDashboard.putNumber("Intake Current", examplePD.getCurrent(2));
 
-  }
-
-  /**
-   * This autonomous runs the autonomous command selected by your
-   * {@link RobotContainer} class.
-   */
+      }
+    
+   
   @Override
   public void autonomousInit() {
 
@@ -199,18 +197,16 @@ Trigger intakeAlgaeIn;
   @Override
   public void teleopPeriodic() {
     //sets the LED color based on which alliance we're on
-    var alliance = DriverStation.getAlliance();
-    if (alliance.isPresent()) {
-      if (alliance.get() == DriverStation.Alliance.Red) {
-        for (int i = 0; i < 96; i++) {
-          m_ledBuffer.setRGB(i, 0, 255, 0); // grb
+    if(LimelightHelpers.getTV("limelight")){
+             for (int i = 0; i < 59; i++) {
+           m_ledBuffer.setRGB(i, 0, 255, 0); // grb
+         }
+        }else{
+          for (int i = 0; i < 59; i++) {
+           m_ledBuffer.setRGB(i, 0, 0, 0); // grb
+         }
         }
-      } else {
-        for (int i = 0; i < 96; i++) {
-          m_ledBuffer.setRGB(i, 0, 0, 100); // grb
-        }
-      }
-    }
+    m_led.setData(m_ledBuffer);
 
       // if (driverController.getYButton()){
       //   shooter.setFeederSpeed(1);
@@ -225,11 +221,11 @@ Trigger intakeAlgaeIn;
 // }
 
       //if auto aiming, set every other LED white, if aiming for algae make them cyan
-      if(driverController.getLeftBumperButton()){
-        for (int i = 1; i < 94; i += 2) {
-          m_ledBuffer.setRGB(i, 255, 255, 0); // grb
-        } 
-      }
+      // if(driverController.getLeftBumperButton()){
+      //   for (int i = 1; i < 94; i += 2) {
+      //     m_ledBuffer.setRGB(i, 255, 255, 0); // grb
+      //   } 
+      // }
       
 // if(driverController.getLeftBumperButton()){
 //   shooter.setSpindexterSpeed(0.5);
@@ -247,7 +243,6 @@ Trigger intakeAlgaeIn;
 //         m_ledBuffer.setRGB(i, sigma, 0, 0); // grb
 //       } 
       // rainbow();
-      m_led.setData(m_ledBuffer);
     
   }
 
@@ -298,7 +293,7 @@ Trigger intakeAlgaeIn;
     //Commands/Bindings 
     startIntake.whileTrue(intake.startFuelIntakeCmd(1.0));
     intakeUp.whileTrue(intake.intakePivot(3.1)); 
-    intakeDown.whileTrue(intake.intakePivot(12.2));
+    intakeDown.whileTrue(intake.intakePivot(13.2));
     //reverseIntake.whileTrue(intake.startFuelIntakeCmd(-.5));
 
   }

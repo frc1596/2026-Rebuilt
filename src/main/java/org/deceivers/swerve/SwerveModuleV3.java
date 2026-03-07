@@ -77,14 +77,13 @@ public class SwerveModuleV3 implements SwerveModule {
         driveConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         driveConfig.Feedback.FeedbackSensorSource = 
                 FeedbackSensorSourceValue.RotorSensor;
-        driveConfig.Slot0.kP = 1.0;
-        driveConfig.Slot0.kI = 0.0;
-        driveConfig.Slot0.kD = 0.0;
-        driveConfig.Slot0.kV = 0.0;
-
+        // driveConfig.Slot0.kP = 1.0;
+        // driveConfig.Slot0.kI = 0.0;
+        // driveConfig.Slot0.kD = 0.0;
+        // driveConfig.Slot0.kV = 0.0;
         driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
-        
+        driveConfig.Feedback.SensorToMechanismRatio = 1/(0.319024/6.12/60.0);
         //  driveConfig
         // .inverted(true)
         // .idleMode(IdleMode.kBrake);
@@ -130,7 +129,7 @@ public class SwerveModuleV3 implements SwerveModule {
     
     // Gets the speed of the drive motor
     public double getSpeed() {
-        return mDriveMotor.getVelocity().getValueAsDouble();
+        return mDriveMotor.getRotorVelocity().getValueAsDouble();
     }
     // Sets the rotation speed of the azimuth motor in open loop mode
     public void setRotation(double rotation) {

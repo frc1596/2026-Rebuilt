@@ -96,7 +96,7 @@ public class IntakeSubsystem extends SubsystemBase{
     public void setFuelIntakeSpeed(double speed)
     {
         intakeFuel.set(speed); 
-        intakeFuelHelper.set(speed);
+        intakeFuelHelper.set(-speed);
     }
  
     public double getFuelIntakeSpeed()
