@@ -5,6 +5,7 @@
 package frc.robot;
 
 import java.util.function.BooleanSupplier;
+import java.util.jar.Attributes.Name;
 
 import org.deceivers.swerve.SwerveDrive;
 import org.photonvision.PhotonCamera;
@@ -102,8 +103,14 @@ private int m_rainbowFirstPixelHue=90;
 
     //Named commands for the pathplanner auto
 
-    //NamedCommands.registerCommand("IntakeFuel", intake.startFuelIntake(SET SPEED););
-    
+    NamedCommands.registerCommand("IntakeFuel", intake.startFuelIntakeCmd(1.0));
+    NamedCommands.registerCommand("Intake Down", intake.intakePivot(13.2));
+    NamedCommands.registerCommand("Intake Up", intake.intakePivot(3.2));
+NamedCommands.registerCommand("startShoot", shooter.startShoot());
+NamedCommands.registerCommand("stopShoot", shooter.stopShoot());
+
+
+
     FollowPathCommand.warmupCommand().schedule();
 
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -292,8 +299,11 @@ private int m_rainbowFirstPixelHue=90;
 
     //Commands/Bindings 
     startIntake.whileTrue(intake.startFuelIntakeCmd(1.0));
-    intakeUp.whileTrue(intake.intakePivot(3.1)); 
-    intakeDown.whileTrue(intake.intakePivot(13.2));
+    // intakeUp.whileTrue(intake.intakePivot(3.1)); 
+    // intakeDown.whileTrue(intake.intakePivot(13.2));
+
+    intakeUp.whileTrue(intake.intakePivot(1-0.1)); 
+    intakeDown.whileTrue(intake.intakePivot(1-0.323));
     //reverseIntake.whileTrue(intake.startFuelIntakeCmd(-.5));
 
   }

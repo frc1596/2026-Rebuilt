@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.6112692763938323,
-        "y": 0.5866785290628707
+        "x": 3.88,
+        "y": 0.587
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.5891459074733105,
-        "y": 0.5759193357058123
+        "x": 1.814072360612038,
+        "y": 0.6625112692768379
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.5341399762752084,
-        "y": 0.5866785290628707
+        "x": 0.5341399762704016,
+        "y": 0.608
       },
       "prevControl": {
-        "x": 1.6746144721233698,
-        "y": 0.5866785290628707
+        "x": 2.546109134040271,
+        "y": 0.7157888493480129
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,10 +42,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -86.98576341198303
   },
   "reversed": false,
-  "folder": null,
+  "folder": "Path 2 South Side",
   "idealStartingState": {
     "velocity": 0,
     "rotation": 0.0

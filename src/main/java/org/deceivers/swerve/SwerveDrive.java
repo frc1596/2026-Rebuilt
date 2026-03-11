@@ -149,13 +149,12 @@ public class SwerveDrive {
         mSwerveDrivePoseEstimator.resetPosition(Rotation2d.fromDegrees(mGyroAngle.getAsDouble()), states, spin);
     }
     
-    public void driveClosedLoop(double forward, double strafe, double azimuth, boolean fieldRelative){
-        ChassisSpeeds speeds;
-        if (fieldRelative){
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward, strafe, azimuth, Rotation2d.fromDegrees(mGyroAngle.getAsDouble()));
-        } else {
-            speeds = new ChassisSpeeds(forward, strafe, azimuth);
-        }
+    public void driveClosedLoop(ChassisSpeeds speeds){
+        // if (fieldRelative){
+        //     speeds = ChassisSpeeds.fromFieldRelativeSpeeds(forward, strafe, azimuth, Rotation2d.fromDegrees(mGyroAngle.getAsDouble()));
+        // } else {
+        //     speeds = new ChassisSpeeds(forward, strafe, azimuth);
+        // }
         SwerveModuleState[] states = mKinematics.toSwerveModuleStates(speeds);
         //SwerveDriveKinematics.normalizeWheelSpeeds(states, 1);
         for (int i = 0; i < numModules; i++){

@@ -85,7 +85,7 @@ public class ShooterSubsystem extends SubsystemBase {
     LinearFilter rotatefilter = LinearFilter.movingAverage(5);
     // private final VisionSubsytem vision;
 
-private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01, 0, 0, m_rotateprofile);
+private ProfiledPIDController autoaimController = new ProfiledPIDController(0.015, 0, 0, m_rotateprofile);
 
     private static InterpolatingDoubleTreeMap hoodmap = new InterpolatingDoubleTreeMap();
      private static InterpolatingDoubleTreeMap shootmap = new InterpolatingDoubleTreeMap();
@@ -143,7 +143,8 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         hoodmap.put(1.0,1.0);// ~15 ft
         hoodmap.put(0.0,0.0);// ~15 ft
 
-        shootmap.put(4.0, 65.0);// ~9ft
+        shootmap.put(4.5, 64.0);// ~9ft
+        shootmap.put(4.0, 61.0);// ~9ft
         shootmap.put(3.0, 60.0);// ~12 ft
         shootmap.put(2.4, 55.0);
         shootmap.put(2.0,50.0);// ~15 ft
@@ -186,6 +187,7 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
 
     public double prevangle=0;
     public double distance = 0;
+private boolean inAuto = false;
 
     @Override
     public void periodic() {
@@ -237,7 +239,7 @@ if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().is
     // SmartDashboard.putNumber("Gyro Angle:", gyroAngle);
     // SmartDashboard.putNumber("Shooter Speed", getShootOneSpeed());
 
-        if (moperatorController.rightBumper().getAsBoolean()) {
+        if (moperatorController.rightBumper().getAsBoolean() || (inAuto == true)) {
                 setHoodAngle(hoodAngle);
 
 
@@ -299,6 +301,9 @@ if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().is
 
     public void rotateTurret(double angle) {
         //m_rotategoal = new TrapezoidProfile.State(angle, 0);  
+        if(angle>0.1){
+            angle = 0.1;
+        }
         turretRotate.set(angle);
       }
  
@@ -322,6 +327,23 @@ if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().is
     public double getShootOneSpeed() {
         return (shootOne.getRotorVelocity().getValueAsDouble());
     }
+public Command startShoot(){
+    //inAuto = true;
+        return this.runOnce(() -> settrue());
+
+}
+
+private void settrue(){
+    inAuto = true;
+}
+private void setfalse(){
+    inAuto = false;
+}
+public Command stopShoot(){
+    //inAuto = false;
+        return this.runOnce(() ->setfalse());
+
+}
 
     public double getShootTwoSpeed() {
         SmartDashboard.putNumber("ShooterSpeed", getShootOneSpeed());

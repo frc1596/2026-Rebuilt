@@ -126,10 +126,10 @@ public class SwerveSubsystem extends SubsystemBase {
             mSwerveDrive::getPose, // Robot pose supplier
             mSwerveDrive::resetPosePathplanner, // Method to reset odometry (will be called if your auto has a starting pose)
             mSwerveDrive::getChassisSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
-            (speeds, feedforwards) -> mSwerveDrive.drivePathplanner(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
+            (speeds, feedforwards) -> mSwerveDrive.driveClosedLoop(speeds), // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds
             new PPHolonomicDriveController( // HolonomicPathFollowerConfig, this should likely live in your Constants class
-                    new PIDConstants(1.0, 0.0, 0), // Translation PID constants 3.8
-                    new PIDConstants(1.0, 0.0, 0) // Rotation PID constants 3.5
+                    new PIDConstants(4.0, 0.0, 0), // Translation PID constants 3.8
+                    new PIDConstants(3.0, 0.0, 0) // Rotation PID constants 3.5
             ),ppConfig,
             () -> {
               // Boolean supplier that controls when the path will be mirrored for the red alliance
@@ -166,13 +166,13 @@ public class SwerveSubsystem extends SubsystemBase {
       mSwerveDrive.drive(forward, strafe, azimuth, fieldRelative);
     }
   
-    public void driveClosedLoop(double forward, double strafe, double azimuth, boolean fieldRelative){
-      if (!fieldRelative){
-        forward = -forward;
-        strafe = -strafe;
-      }
-      azimuth = azimuth*2.5;
-      mSwerveDrive.driveClosedLoop(forward, strafe, azimuth, fieldRelative);
+    public void driveClosedLoop(ChassisSpeeds speeds){
+      // if (!fieldRelative){
+      //   forward = -forward;
+      //   strafe = -strafe;
+      // }
+      // azimuth = azimuth*2.5;
+      mSwerveDrive.driveClosedLoop(speeds);
     }
   
     public void stop(){

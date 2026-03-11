@@ -2,7 +2,10 @@
   "robotWidth": 0.6,
   "robotLength": 1.0,
   "holonomicMode": true,
-  "pathFolders": [],
+  "pathFolders": [
+    "Path 2 South Side",
+    "Path 1 North Side"
+  ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

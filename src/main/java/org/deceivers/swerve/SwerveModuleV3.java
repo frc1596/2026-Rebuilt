@@ -51,6 +51,7 @@ public class SwerveModuleV3 implements SwerveModule {
     private final String mName;
 
       private PIDController azimuthPID = new PIDController(0.01, 0, 0);
+    //private PIDController drivePID = new PIDController(0.01,0,0);
 
     // need to update the speed to m/s
 
@@ -77,13 +78,14 @@ public class SwerveModuleV3 implements SwerveModule {
         driveConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         driveConfig.Feedback.FeedbackSensorSource = 
                 FeedbackSensorSourceValue.RotorSensor;
+        driveConfig.Slot0.kP= 6.0;
         // driveConfig.Slot0.kP = 1.0;
         // driveConfig.Slot0.kI = 0.0;
         // driveConfig.Slot0.kD = 0.0;
         // driveConfig.Slot0.kV = 0.0;
         driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
-        driveConfig.Feedback.SensorToMechanismRatio = 1/(0.319024/6.12/60.0);
+        driveConfig.Feedback.SensorToMechanismRatio = 1/(0.319024/6.12/60.0)*0.019754*0.739*(1+0.1016);
         //  driveConfig
         // .inverted(true)
         // .idleMode(IdleMode.kBrake);
@@ -185,6 +187,19 @@ public class SwerveModuleV3 implements SwerveModule {
         //mAzimuthPID.setReference(setpoint, ControlType.kPosition);
         mAzimuthMotor.set(azimuthPID.calculate(current.getDegrees(), setpoint));
         mDriveMotor.set(velocity);
+
+        SmartDashboard.putNumber("CurrentOutputManualVeloctiy", velocity);
+        //SmartDashboard.putNumber(mName + "Angle", current.getDegrees());
+    }
+
+        public void setAuto(SwerveModuleState drive) {
+        Rotation2d current = Rotation2d.fromDegrees(mAzimuthAbsoluteEncoder.getPosition().getValueAsDouble()*360.0);
+        SwerveModuleState optimizedState = SwerveModuleState.optimize(drive, current);
+        double setpoint = optimizedState.angle.getDegrees();
+        double velocity = optimizedState.speedMetersPerSecond;
+        //mAzimuthPID.setReference(setpoint, ControlType.kPosition);
+        mAzimuthMotor.set(azimuthPID.calculate(current.getDegrees(), setpoint));
+        mDriveMotor.set(velocity);
         //SmartDashboard.putNumber(mName + "Angle", current.getDegrees());
     }
 
@@ -219,7 +234,7 @@ public class SwerveModuleV3 implements SwerveModule {
 
         //drive gear ratio 6.28:1, 
         double targetRPS =
-            velocityMps * 6.28 / 0.319186;
+            velocityMps * 1.0;//6.28 / 0.319186;
 
         mDriveMotor.setControl(
             new VelocityVoltage(targetRPS)
