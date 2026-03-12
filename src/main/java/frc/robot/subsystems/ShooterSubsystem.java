@@ -228,7 +228,7 @@ private boolean inAuto = false;
            prevangle=gyroAngle;
 
 
-if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().isReached() && !turretRotate.getReverseSoftLimit().isReached())
+if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().isReached() && !turretRotate.getReverseSoftLimit().isReached() && !inAuto)
 {
     double limelightOutput = autoaimController.calculate(LimelightHelpers.getTX("limelight"));
         double anglesign = autoaimController.calculate(limelightOutput/Math.abs(limelightOutput)); //I know there's a better way to check for the sign, i forget
@@ -237,6 +237,13 @@ if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().is
         }
            rotateTurret((limelightOutput)-(angledif*.055));
 
+}else if( LimelightHelpers.getTV("limelight") && inAuto){ //id in auto don't do gyro correction on the turret
+     double limelightOutput = autoaimController.calculate(LimelightHelpers.getTX("limelight"));
+        double anglesign = autoaimController.calculate(limelightOutput/Math.abs(limelightOutput)); //I know there's a better way to check for the sign, i forget
+        if(Math.abs(limelightOutput)>0.2){
+            limelightOutput = 0.2*anglesign;
+        }
+           rotateTurret((limelightOutput));
 }else{
  rotateTurret(-moperatorController.getLeftX()*0.35-(angledif*.05));
 }

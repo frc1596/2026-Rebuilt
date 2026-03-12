@@ -11,9 +11,21 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "IntakeFuel"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "Path 1-2"
+            "pathName": "CloseLeft1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "CloseLeft2"
           }
         },
         {
@@ -25,7 +37,19 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 10.0
+            "waitTime": 5.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake Up"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 5.0
           }
         },
         {
