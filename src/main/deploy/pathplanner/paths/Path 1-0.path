@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.208655555555556,
-        "y": 7.431211111111111
+        "x": 3.7941755634638206,
+        "y": 7.440284697508897
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.226963226571769,
-        "y": 7.128268090154211
+        "x": 7.812483234480031,
+        "y": 7.137341676551997
       },
       "isLocked": false,
       "linkedName": null
@@ -30,11 +30,25 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.6056838365897061,
-      "rotationDegrees": -49.057192212157304
+      "waypointRelativePos": 0.6980461811722953,
+      "rotationDegrees": -170.7771222696497
     }
   ],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.71766029246344,
+      "maxWaypointRelativePos": 1.0,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -47,7 +61,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -1.4688007143858268
+    "rotation": -179.44045285974786
   },
   "reversed": false,
   "folder": "Path 1 North Side",

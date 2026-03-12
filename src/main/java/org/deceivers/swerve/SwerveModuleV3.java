@@ -85,7 +85,7 @@ public class SwerveModuleV3 implements SwerveModule {
         // driveConfig.Slot0.kV = 0.0;
         driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
-        driveConfig.Feedback.SensorToMechanismRatio = 1/(0.319024/6.12/60.0)*0.019754*0.739*(1+0.1016);
+        driveConfig.Feedback.SensorToMechanismRatio = 1/(0.319024/6.12/60.0)*0.019754*0.739*(1+0.2);//simplifies to 11.5? circumference of wheel is 12.56inch
         //  driveConfig
         // .inverted(true)
         // .idleMode(IdleMode.kBrake);

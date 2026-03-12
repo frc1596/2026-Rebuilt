@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.904187425860025,
-        "y": 7.300415183867142
+        "x": 7.957983392645316,
+        "y": 7.945966785290629
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 7.397247924080664
       },
       "prevControl": {
-        "x": 5.493948991696323,
-        "y": 7.461803084223013
+        "x": 5.720071174377226,
+        "y": 7.2896559905100835
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,7 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.7939609236234477,
-      "rotationDegrees": -1.9638692336681336
+      "rotationDegrees": -179.31046773135375
     }
   ],
   "constraintZones": [],
@@ -47,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 90.0
+    "rotation": 117.66879749716483
   },
   "reversed": false,
   "folder": "Path 1 North Side",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.1781133248342035
+    "rotation": -177.39337398124303
   },
   "useDefaultConstraints": false
 }

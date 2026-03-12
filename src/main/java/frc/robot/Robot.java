@@ -191,7 +191,7 @@ NamedCommands.registerCommand("stopShoot", shooter.stopShoot());
      drivetrain = new DriveCommand(swerve, driverController, operatorController);
     swerve.setDefaultCommand(drivetrain);
 
-
+shooter.stopShoot();
 
 
     if (m_autonomousCommand != null) {

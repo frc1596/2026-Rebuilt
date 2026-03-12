@@ -239,7 +239,6 @@ if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().is
 
 }else{
  rotateTurret(-moperatorController.getLeftX()*0.35-(angledif*.05));
-
 }
     
     // SmartDashboard.putNumber("Gyro Angle:", gyroAngle);

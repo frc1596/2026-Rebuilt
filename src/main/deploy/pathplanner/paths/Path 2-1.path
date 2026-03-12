@@ -20,15 +20,20 @@
         "y": 0.6942704626334513
       },
       "prevControl": {
-        "x": 2.911921708185054,
-        "y": 0.6835112692763927
+        "x": 3.482158956109135,
+        "y": 0.7265480427046258
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7015985790408475,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -42,7 +47,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -4.014175695410945
+    "rotation": -130.3999043337367
   },
   "reversed": false,
   "folder": "Path 2 South Side",
