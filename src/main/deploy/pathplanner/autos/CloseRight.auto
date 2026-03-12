@@ -29,12 +29,6 @@
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "startShoot"
-          }
-        },
-        {
           "type": "wait",
           "data": {
             "waitTime": 10.0

@@ -227,12 +227,18 @@ private boolean inAuto = false;
      double angledif=gyroAngle-prevangle;
            prevangle=gyroAngle;
 
-if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().isReached() && !turretRotate.getForwardSoftLimit().isReached())
+
+if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().isReached() && !turretRotate.getReverseSoftLimit().isReached())
 {
-           rotateTurret(autoaimController.calculate(LimelightHelpers.getTX("limelight"))-(angledif*.05));
+    double limelightOutput = autoaimController.calculate(LimelightHelpers.getTX("limelight"));
+        double anglesign = autoaimController.calculate(limelightOutput/Math.abs(limelightOutput)); //I know there's a better way to check for the sign, i forget
+        if(Math.abs(limelightOutput)>0.2){
+            limelightOutput = 0.2*anglesign;
+        }
+           rotateTurret((limelightOutput)-(angledif*.055));
 
 }else{
- rotateTurret(-moperatorController.getLeftX()*0.4-(angledif*.05));
+ rotateTurret(-moperatorController.getLeftX()*0.35-(angledif*.05));
 
 }
     
@@ -301,9 +307,7 @@ if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().is
 
     public void rotateTurret(double angle) {
         //m_rotategoal = new TrapezoidProfile.State(angle, 0);  
-        if(angle>0.1){
-            angle = 0.1;
-        }
+
         turretRotate.set(angle);
       }
  

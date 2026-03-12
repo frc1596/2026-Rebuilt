@@ -159,7 +159,7 @@ public class DriveCommand extends Command {
     boolean fieldRelative = !mController.getAButton();
     // ChassisSpeeds regularDrive = ChassisSpeeds.fromFieldRelativeSpeeds(xrVel,
     // yrVel, joystickMagnitude, joystickAngle);
-    mSwerve.drive(yfilter.calculate(yVel), xfilter.calculate(xVel), rotVel, fieldRelative);
+    mSwerve.drive( xfilter.calculate(xVel),yfilter.calculate(-yVel), rotVel, fieldRelative);
     // mSwerve.driveFieldRelative(regularDrive);
   }
 

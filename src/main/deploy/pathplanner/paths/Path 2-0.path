@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.041637010676157,
-        "y": 0.5974377224199281
+        "x": 3.7726571767497044,
+        "y": 0.554400948991697
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.140284697508896,
-        "y": 0.8341399762752064
+        "x": 6.892823250296561,
+        "y": 0.7695848161328604
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +20,8 @@
         "y": 3.566975088967972
       },
       "prevControl": {
-        "x": 7.92570581257414,
-        "y": 0.8233807829181501
+        "x": 7.914946619217083,
+        "y": -0.06963226571767578
       },
       "nextControl": null,
       "isLocked": false,
@@ -29,7 +29,21 @@
     }
   ],
   "rotationTargets": [],
-  "constraintZones": [],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0.7109111361079797,
+      "maxWaypointRelativePos": 0.998875140607428,
+      "constraints": {
+        "maxVelocity": 1.0,
+        "maxAcceleration": 3.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
   "pointTowardsZones": [],
   "eventMarkers": [],
   "globalConstraints": {
@@ -48,7 +62,7 @@
   "folder": "Path 2 South Side",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -96.98105740682979
+    "rotation": -90.0
   },
   "useDefaultConstraints": true
 }
