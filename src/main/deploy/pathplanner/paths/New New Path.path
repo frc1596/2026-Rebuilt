@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 4.030877817319099,
-        "y": 7.3757295373665475
+        "x": 3.7726571767497044,
+        "y": 0.5866785290628707
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.030877817319099,
-        "y": 7.3757295373665475
+        "x": 2.5138315539739033,
+        "y": 0.65123368920522
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.6632502965599059,
-        "y": 5.901720047449585
+        "x": 0.33,
+        "y": 0.5866785290628707
       },
       "prevControl": {
-        "x": 1.663250296559904,
-        "y": 5.901720047449584
+        "x": 1.5565480427046257,
+        "y": 0.5974377224199283
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +42,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -92.20259816176582
+    "rotation": -90.90938044919916
   },
   "reversed": false,
-  "folder": "Path 1 North Side",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -88.69804732742108
+    "rotation": -90.1490823974591
   },
   "useDefaultConstraints": true
 }

@@ -287,7 +287,7 @@ NamedCommands.registerCommand("stopShoot", shooter.stopShoot());
     // Triggers
     // +=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=+=
     //  Intake 
-    Trigger startIntake = operatorController.a();
+    Trigger startIntake = operatorController.a();//.and(operatorController.povDown().negate());
     Trigger intakeUp = operatorController.povUp(); 
     Trigger intakeDown = operatorController.povDown(); 
     Trigger reverseIntake = operatorController.b();
@@ -296,14 +296,13 @@ NamedCommands.registerCommand("stopShoot", shooter.stopShoot());
     Trigger turretright = operatorController.povLeft();
     Trigger blindshoot = operatorController.leftBumper();
 
-
     //Commands/Bindings 
     startIntake.whileTrue(intake.startFuelIntakeCmd(1.0));
-    // intakeUp.whileTrue(intake.intakePivot(3.1)); 
-    // intakeDown.whileTrue(intake.intakePivot(13.2));
-
-    intakeUp.whileTrue(intake.intakePivot(1-0.1)); 
-    intakeDown.whileTrue(intake.intakePivot(1-0.323));
+    intakeUp.whileTrue(intake.intakePivot(3.1)); 
+    intakeDown.whileTrue(intake.intakePivot(13.2));//.alongWith(intake.startFuelIntakeCmd(-0.2)));
+reverseIntake.whileTrue(intake.startFuelIntakeCmd(-0.2));
+    // intakeUp.whileTrue(intake.intakePivot(1-0.1)); 
+    // intakeDown.whileTrue(intake.intakePivot(1-0.323));
     //reverseIntake.whileTrue(intake.startFuelIntakeCmd(-.5));
 
   }

@@ -6,6 +6,7 @@ import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkRelativeEncoder;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -31,11 +32,11 @@ public class IntakeSubsystem extends SubsystemBase{
     SparkMaxConfig intakeFuelConfig = new SparkMaxConfig();
 
 //    private final RelativeEncoder mIntakeEncoder;
-    private final SparkAbsoluteEncoder mIntakeEncoder;
+    private final RelativeEncoder mIntakeEncoder;
 
     private final SparkClosedLoopController mIntakePID;
 
-    private final TrapezoidProfile m_pivotProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(4, 1));
+    private final TrapezoidProfile m_pivotProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(50, 100));
     private TrapezoidProfile.State m_pivotGoal = new TrapezoidProfile.State(0,0); 
     private TrapezoidProfile.State m_pivotSetpoint = new TrapezoidProfile.State(0,0);
  
@@ -45,20 +46,21 @@ public class IntakeSubsystem extends SubsystemBase{
     {
         //intakepivitconfig
         intakePivotConfig.idleMode(IdleMode.kBrake);
-        intakePivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pidf(3.0,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
-     
-        intakePivotConfig.closedLoop.positionWrappingEnabled(true);
-      intakePivotConfig.closedLoop.positionWrappingMaxInput(1);
-      intakePivotConfig.closedLoop.positionWrappingMinInput(0);
+       // intakePivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pidf(2.0,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
+             intakePivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(2.4,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
+
+    //     intakePivotConfig.closedLoop.positionWrappingEnabled(true);
+    //   intakePivotConfig.closedLoop.positionWrappingMaxInput(1);
+    //   intakePivotConfig.closedLoop.positionWrappingMinInput(0);
       intakePivotConfig.encoder.positionConversionFactor(1); 
         intakePivotConfig.encoder.velocityConversionFactor(1); 
        // intakePivotConfig.encoder.inverted(false);
-        intakePivotConfig.smartCurrentLimit(40);
-        intakePivotConfig.inverted(true); 
+        intakePivotConfig.smartCurrentLimit(35);
+        intakePivotConfig.inverted(false); 
         intakePivot.configure(intakePivotConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
-       // mIntakeEncoder = intakePivot.getEncoder();
-               mIntakeEncoder = intakePivot.getAbsoluteEncoder();
-       // mIntakeEncoder.setPosition(0); 
+        mIntakeEncoder = intakePivot.getEncoder();
+          //     mIntakeEncoder = intakePivot.getAbsoluteEncoder();
+        mIntakeEncoder.setPosition(0); 
         mIntakePID = intakePivot.getClosedLoopController(); 
 
         intakeFuelConfig.idleMode(IdleMode.kCoast);
@@ -94,7 +96,7 @@ public class IntakeSubsystem extends SubsystemBase{
     }
 
     public boolean movePivotInPosition() {
-        return Math.abs(m_pivotSetpoint.position - m_pivotGoal.position) < 0.01;
+        return Math.abs(m_pivotSetpoint.position - m_pivotGoal.position) < 1.0;
     }
 
     public Command intakePivot(double angle)

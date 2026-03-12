@@ -109,11 +109,11 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         spindexterConfig.inverted(false);
         spindexter.configure(spindexterConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
        
-        turretHoodConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(1.6,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
+        turretHoodConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(2.0,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
         turretHoodConfig.idleMode(IdleMode.kBrake);
         turretHoodConfig.encoder.positionConversionFactor(1);
         turretHoodConfig.encoder.velocityConversionFactor(1);
-        turretHoodConfig.smartCurrentLimit(30);
+        turretHoodConfig.smartCurrentLimit(40);
         turretHoodConfig.inverted(false);
         turretHood.configure(turretHoodConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
         mHoodEncoder = turretHood.getEncoder();
@@ -165,7 +165,7 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         shootoneConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
         shootoneConfig.Slot0.kV = .11;
         shootoneConfig.Slot0.kP = .30;
-        shootoneConfig.Slot0.kS = 0.1;
+        shootoneConfig.Slot0.kS = 0.12;
         shootoneConfig.Slot0.kI = 0;
         shootoneConfig.Slot0.kD = 0;
         shootOne.getConfigurator().apply(shootoneConfig, 0.05);
@@ -173,14 +173,14 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         TalonFXConfiguration shoottwoConfig = new TalonFXConfiguration();
         shoottwoConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         shoottwoConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        shootoneConfig.CurrentLimits.SupplyCurrentLimit = 70;
-        shootoneConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
-        shootoneConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
+        shoottwoConfig.CurrentLimits.SupplyCurrentLimit = 70;
+        shoottwoConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
+        shoottwoConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
         shoottwoConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         shoottwoConfig.Slot0.kV = .11;
         shoottwoConfig.Slot0.kP = .30;
         shoottwoConfig.Slot0.kI = 0;
-        shoottwoConfig.Slot0.kS = 0.1;
+        shoottwoConfig.Slot0.kS = 0.12;
         shoottwoConfig.Slot0.kD = 0;
         shootTwo.getConfigurator().apply(shoottwoConfig, 0.05);
     }
@@ -232,7 +232,7 @@ if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().is
            rotateTurret(autoaimController.calculate(LimelightHelpers.getTX("limelight"))-(angledif*.05));
 
 }else{
- rotateTurret(-moperatorController.getLeftX()*0.3-(angledif*.05));
+ rotateTurret(-moperatorController.getLeftX()*0.4-(angledif*.05));
 
 }
     
@@ -246,7 +246,7 @@ if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().is
             if (getShootOneSpeed() == 0.0 && getShootTwoSpeed() == 0.0) // if the shooters have not been started
             {
                 setShootSpeed(shooterSpeed); // start the shooter
-            } else if (Math.abs(getShootOneSpeed()) > (shooterSpeed-5.0)) // if the shooters
+            } else if (Math.abs(getShootOneSpeed()) > (shooterSpeed-3.0)) // if the shooters
                                                                                                    // are up to speed
             {
                 setSpindexterSpeed(-1.0); // start everything else
