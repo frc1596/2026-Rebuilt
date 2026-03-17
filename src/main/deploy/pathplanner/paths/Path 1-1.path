@@ -30,8 +30,8 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.7939609236234477,
-      "rotationDegrees": -179.31046773135375
+      "waypointRelativePos": 0.8685612788632384,
+      "rotationDegrees": -0.9043301464298742
     }
   ],
   "constraintZones": [],
@@ -47,13 +47,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 117.66879749716483
+    "rotation": -67.43649587842269
   },
   "reversed": false,
   "folder": "Path 1 North Side",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -177.39337398124303
+    "rotation": -3.8440588609229884
   },
   "useDefaultConstraints": false
 }

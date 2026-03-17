@@ -106,8 +106,8 @@ public class IntakeSubsystem extends SubsystemBase{
 
     public void setFuelIntakeSpeed(double speed)
     {
-        intakeFuel.set(speed); 
-        intakeFuelHelper.set(-speed);
+        intakeFuel.set(-speed); 
+        intakeFuelHelper.set(speed);
     }
  
     public double getFuelIntakeSpeed()
@@ -115,8 +115,17 @@ public class IntakeSubsystem extends SubsystemBase{
         return(intakeFuel.get());
     }
 
+public Command manualPivot(double angle){
+
+    return this.runOnce(()->m_pivotGoal.position = m_pivotGoal.position + angle);
+}
     public Command startFuelIntakeCmd(double speed)
     {
         return this.startEnd(() -> setFuelIntakeSpeed(speed),() -> setFuelIntakeSpeed(0.0));
+    }
+
+        public Command startFuelIntakeCmdAuto(double speed)
+    {
+        return this.runOnce(() -> setFuelIntakeSpeed(speed));
     }
 }

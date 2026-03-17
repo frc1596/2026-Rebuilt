@@ -103,7 +103,7 @@ private int m_rainbowFirstPixelHue=90;
 
     //Named commands for the pathplanner auto
 
-    NamedCommands.registerCommand("IntakeFuel", intake.startFuelIntakeCmd(1.0));
+    NamedCommands.registerCommand("IntakeFuel", intake.startFuelIntakeCmdAuto(1.0));
     NamedCommands.registerCommand("Intake Down", intake.intakePivot(13.2));
     NamedCommands.registerCommand("Intake Up", intake.intakePivot(3.2));
 NamedCommands.registerCommand("startShoot", shooter.startShoot());
@@ -190,8 +190,9 @@ NamedCommands.registerCommand("stopShoot", shooter.stopShoot());
     //continuously runs the DriveCommand. If some other command requires the swerve, that one will take priority
      drivetrain = new DriveCommand(swerve, driverController, operatorController);
     swerve.setDefaultCommand(drivetrain);
-
 shooter.stopShoot(); //if auto runs long, this is needed to stop the shooter
+
+shooter.setfalse(); //if auto runs long, this is needed to stop the shooter
 
 
     if (m_autonomousCommand != null) {
@@ -295,8 +296,13 @@ shooter.stopShoot(); //if auto runs long, this is needed to stop the shooter
     Trigger shoot = operatorController.rightBumper();
     Trigger turretright = operatorController.povLeft();
     Trigger blindshoot = operatorController.leftBumper();
+Trigger manualDown = operatorController.x();
+Trigger manualUp = operatorController.y();
 
     //Commands/Bindings 
+    manualDown.onTrue(intake.manualPivot(1));
+        manualUp.onTrue(intake.manualPivot(-1));
+
     startIntake.whileTrue(intake.startFuelIntakeCmd(1.0));
     intakeUp.whileTrue(intake.intakePivot(3.1)); 
     intakeDown.whileTrue(intake.intakePivot(13.2));//.alongWith(intake.startFuelIntakeCmd(-0.2)));

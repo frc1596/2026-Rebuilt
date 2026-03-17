@@ -109,7 +109,7 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         spindexterConfig.inverted(false);
         spindexter.configure(spindexterConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
        
-        turretHoodConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(2.0,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
+        turretHoodConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(1.8,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
         turretHoodConfig.idleMode(IdleMode.kBrake);
         turretHoodConfig.encoder.positionConversionFactor(1);
         turretHoodConfig.encoder.velocityConversionFactor(1);
@@ -164,8 +164,8 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         shootoneConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
         shootoneConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
         shootoneConfig.Slot0.kV = .11;
-        shootoneConfig.Slot0.kP = .30;
-        shootoneConfig.Slot0.kS = 0.12;
+        shootoneConfig.Slot0.kP = .34;
+        shootoneConfig.Slot0.kS = 0.14;
         shootoneConfig.Slot0.kI = 0;
         shootoneConfig.Slot0.kD = 0;
         shootOne.getConfigurator().apply(shootoneConfig, 0.05);
@@ -228,24 +228,24 @@ private boolean inAuto = false;
            prevangle=gyroAngle;
 
 
-if(LimelightHelpers.getTV("limelight") && !turretRotate.getForwardSoftLimit().isReached() && !turretRotate.getReverseSoftLimit().isReached() && !inAuto)
+if(LimelightHelpers.getTV("limelight") && !inAuto)
 {
     double limelightOutput = autoaimController.calculate(LimelightHelpers.getTX("limelight"));
-        double anglesign = autoaimController.calculate(limelightOutput/Math.abs(limelightOutput)); //I know there's a better way to check for the sign, i forget
+        double anglesign = limelightOutput/Math.abs(limelightOutput); //I know there's a better way to check for the sign, i forget
         if(Math.abs(limelightOutput)>0.2){
             limelightOutput = 0.2*anglesign;
         }
-           rotateTurret((limelightOutput)-(angledif*.055));
+           rotateTurret((limelightOutput));//-(angledif*.055));
 
 }else if( LimelightHelpers.getTV("limelight") && inAuto){ //id in auto don't do gyro correction on the turret
      double limelightOutput = autoaimController.calculate(LimelightHelpers.getTX("limelight"));
-        double anglesign = autoaimController.calculate(limelightOutput/Math.abs(limelightOutput)); //I know there's a better way to check for the sign, i forget
+        double anglesign = limelightOutput/Math.abs(limelightOutput); //I know there's a better way to check for the sign, i forget
         if(Math.abs(limelightOutput)>0.2){
             limelightOutput = 0.2*anglesign;
         }
            rotateTurret((limelightOutput));
 }else{
- rotateTurret(-moperatorController.getLeftX()*0.35-(angledif*.05));
+ rotateTurret(-moperatorController.getLeftX()*.4);//*0.35-(angledif*.05));
 }
     
     // SmartDashboard.putNumber("Gyro Angle:", gyroAngle);
@@ -343,10 +343,12 @@ public Command startShoot(){
 
 }
 
-private void settrue(){
+
+
+public void settrue(){
     inAuto = true;
 }
-private void setfalse(){
+public void setfalse(){
     inAuto = false;
 }
 public Command stopShoot(){
