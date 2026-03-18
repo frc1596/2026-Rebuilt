@@ -17,6 +17,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorOutputStatusValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -64,7 +65,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private final RelativeEncoder mHoodEncoder;
     private final RelativeEncoder mrotateencoder;
     private final SparkClosedLoopController mHoodPID;
-    //private final SparkClosedLoopController mrotatePID;
+    private final SparkClosedLoopController mrotatePID;
 
 
     private final TrapezoidProfile m_pivotProfile = new TrapezoidProfile(new TrapezoidProfile.Constraints(60, 200));
@@ -72,9 +73,9 @@ public class ShooterSubsystem extends SubsystemBase {
     private TrapezoidProfile.State m_hoodsetpoint = new TrapezoidProfile.State(0,0);
  
 
-    // private TrapezoidProfile.State m_rotategoal = new TrapezoidProfile.State(0,0); 
-    // private TrapezoidProfile.State m_rotatesetpoint = new TrapezoidProfile.State(0,0);
- private final Constraints m_rotateprofile = new Constraints(.05, 0);
+     private TrapezoidProfile.State m_rotategoal = new TrapezoidProfile.State(0,0); 
+     private TrapezoidProfile.State m_rotatesetpoint = new TrapezoidProfile.State(0,0);
+ private final TrapezoidProfile m_rotateprofile =  new TrapezoidProfile(new TrapezoidProfile.Constraints(340, 1000));
 
     // MedianFilter filter = new MedianFilter(19);
     // MedianFilter shootfilter = new MedianFilter(19);
@@ -85,7 +86,7 @@ public class ShooterSubsystem extends SubsystemBase {
     LinearFilter rotatefilter = LinearFilter.movingAverage(5);
     // private final VisionSubsytem vision;
 
-private ProfiledPIDController autoaimController = new ProfiledPIDController(0.015, 0, 0, m_rotateprofile);
+//private ProfiledPIDController autoaimController = new ProfiledPIDController(0.015, 0, 0, m_rotateprofile);
 
     private static InterpolatingDoubleTreeMap hoodmap = new InterpolatingDoubleTreeMap();
      private static InterpolatingDoubleTreeMap shootmap = new InterpolatingDoubleTreeMap();
@@ -120,20 +121,22 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
         mHoodEncoder.setPosition(0); 
         mHoodPID = turretHood.getClosedLoopController(); 
         
-        turretRotateConfig.softLimit.forwardSoftLimit(10.5);
-        turretRotateConfig.softLimit.reverseSoftLimit(-10.5);
+        turretRotateConfig.softLimit.forwardSoftLimit(190);
+        turretRotateConfig.softLimit.reverseSoftLimit(-190);
         turretRotateConfig.softLimit.forwardSoftLimitEnabled(true);
         turretRotateConfig.softLimit.reverseSoftLimitEnabled(true);
-        //turretRotateConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(1.0,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
+        turretRotateConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(0.05,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
+    turretRotateConfig.closedLoop.allowedClosedLoopError(2.5, ClosedLoopSlot.kSlot0);
+
         turretRotateConfig.idleMode(IdleMode.kBrake);
-        turretRotateConfig.encoder.positionConversionFactor(1);
-        turretRotateConfig.encoder.velocityConversionFactor(1);
+        turretRotateConfig.encoder.positionConversionFactor((24.0/115.0)*(1.0/5.0)*360);//degrees
+        turretRotateConfig.encoder.velocityConversionFactor((24.0/115.0)*(1.0/5.0)*360);//degrees per minute
         turretRotateConfig.smartCurrentLimit(40);
         turretRotateConfig.inverted(false);
         turretRotate.configure(turretRotateConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
         mrotateencoder = turretRotate.getEncoder();
         mrotateencoder.setPosition(0); 
-        //mrotatePID = turretRotate.getClosedLoopController(); 
+        mrotatePID = turretRotate.getClosedLoopController();
 
         hoodmap.put(4.5,3.0);// ~6 ft
         hoodmap.put(4.0, 2.5);// ~9ft
@@ -188,14 +191,29 @@ private ProfiledPIDController autoaimController = new ProfiledPIDController(0.01
     public double prevangle=0;
     public double distance = 0;
 private boolean inAuto = false;
-
+private boolean justWrapped = false;
+double turretWrap = 0;
     @Override
     public void periodic() {
+SmartDashboard.putNumber("TurretWrap", turretWrap);
+        if((mrotateencoder.getPosition() >=180) && !justWrapped){
+           // mrotateencoder.setPosition(mrotateencoder.getPosition()-340);
+turretWrap = turretWrap -340;
+justWrapped = true;
+        } else if ((mrotateencoder.getPosition() <= -180) && !justWrapped){
+            //mrotateencoder.setPosition(mrotateencoder.getPosition()+340);
+            turretWrap = turretWrap +340;
+            justWrapped = true;
+
+        }else if(Math.abs((mrotateencoder.getPosition())) < 180.0){
+            justWrapped = false;
+            turretWrap = 0;
+        }
         double hoodAngle = 0;
         double shooterSpeed = 0;
         Pose3d position = LimelightHelpers.getCameraPose3d_TargetSpace("limelight");
-        autoaimController.setGoal(0);
-        autoaimController.calculate(LimelightHelpers.getTX("limelight"));
+       // autoaimController.setGoal(0);
+       // autoaimController.calculate(LimelightHelpers.getTX("limelight"));
 
         //if Limelight has a valid target,
         if(LimelightHelpers.getTV("limelight")){
@@ -212,7 +230,7 @@ private boolean inAuto = false;
         // prevangle=gyroAngle;
 
         m_hoodsetpoint = m_pivotProfile.calculate(.02, m_hoodsetpoint, m_hoodGoal);
-       // m_rotatesetpoint = m_rotateprofile.calculate(.02, m_rotatesetpoint, m_rotategoal);
+        m_rotatesetpoint = m_rotateprofile.calculate(.02, m_rotatesetpoint, m_rotategoal);
 
         SmartDashboard.putNumber("Dist", distance);
         SmartDashboard.putNumber("Hoodangle", hoodAngle);
@@ -221,31 +239,35 @@ private boolean inAuto = false;
 
         //Set new position to the PID Controller
      mHoodPID.setReference(m_hoodsetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
-    //mrotatePID.setReference(m_rotatesetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
- double gyroAngle = 0.0;
-     gyroAngle = mSwerve.getRotation();
-     double angledif=gyroAngle-prevangle;
-           prevangle=gyroAngle;
+    mrotatePID.setReference(m_rotatesetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
+ 
+    // double gyroAngle = 0.0;
+    //  gyroAngle = mSwerve.getRotation();
+    //  double angledif=gyroAngle-prevangle;
+    //        prevangle=gyroAngle;
 
-
+if(turretInPosition()){
 if(LimelightHelpers.getTV("limelight") && !inAuto)
 {
-    double limelightOutput = autoaimController.calculate(LimelightHelpers.getTX("limelight"));
-        double anglesign = limelightOutput/Math.abs(limelightOutput); //I know there's a better way to check for the sign, i forget
-        if(Math.abs(limelightOutput)>0.2){
-            limelightOutput = 0.2*anglesign;
-        }
-           rotateTurret((limelightOutput));//-(angledif*.055));
+   // double limelightOutput = autoaimController.calculate(LimelightHelpers.getTX("limelight"));
+        // double anglesign = limelightOutput/Math.abs(limelightOutput); //I know there's a better way to check for the sign, i forget
+        // if(Math.abs(limelightOutput)>0.2){
+        //     limelightOutput = 0.2*anglesign;
+        // }
+
+           rotateTurret((mrotateencoder.getPosition()-LimelightHelpers.getTX("limelight")+turretWrap));//-(angledif*.055));
 
 }else if( LimelightHelpers.getTV("limelight") && inAuto){ //id in auto don't do gyro correction on the turret
-     double limelightOutput = autoaimController.calculate(LimelightHelpers.getTX("limelight"));
-        double anglesign = limelightOutput/Math.abs(limelightOutput); //I know there's a better way to check for the sign, i forget
-        if(Math.abs(limelightOutput)>0.2){
-            limelightOutput = 0.2*anglesign;
-        }
-           rotateTurret((limelightOutput));
+    // double limelightOutput = autoaimController.calculate(LimelightHelpers.getTX("limelight"));
+        // double anglesign = limelightOutput/Math.abs(limelightOutput); //I know there's a better way to check for the sign, i forget
+        // if(Math.abs(limelightOutput)>0.2){
+        //     limelightOutput = 0.2*anglesign;
+        // }
+           rotateTurret((mrotateencoder.getPosition()-LimelightHelpers.getTX("limelight")+turretWrap));
 }else{
- rotateTurret(-moperatorController.getLeftX()*.4);//*0.35-(angledif*.05));
+ //manualrotateTurret(-moperatorController.getLeftX()*.4);//*0.35-(angledif*.05));
+ //rotateTurret(mrotateencoder.getPosition());
+}
 }
     
     // SmartDashboard.putNumber("Gyro Angle:", gyroAngle);
@@ -300,9 +322,11 @@ if(LimelightHelpers.getTV("limelight") && !inAuto)
     {
         m_hoodGoal = new TrapezoidProfile.State(angle, 0);
     }
+
     public void stopshoot() {
         setShootSpeed(0);
     }
+
     public void setSpindexterSpeed(double speed) {
         spindexter.set(-speed);
     }
@@ -310,11 +334,20 @@ if(LimelightHelpers.getTV("limelight") && !inAuto)
     public void doNothing() {
 
     }
+public boolean turretInPosition(){
+
+            return Math.abs(m_rotatesetpoint.position - m_rotategoal.position) < 2.0;
+
+}
+      public void manualrotateTurret(double angle) {
+
+       turretRotate.set(angle);
+      }
 
     public void rotateTurret(double angle) {
-        //m_rotategoal = new TrapezoidProfile.State(angle, 0);  
+        m_rotategoal = new TrapezoidProfile.State(angle, 0);  
 
-        turretRotate.set(angle);
+       // turretRotate.set(angle);
       }
  
 
