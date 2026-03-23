@@ -149,8 +149,8 @@ public class ShooterSubsystem extends SubsystemBase {
         mHoodEncoder.setPosition(0); 
         mHoodPID = turretHood.getClosedLoopController(); 
         
-        turretRotateConfig.softLimit.forwardSoftLimit(370);
-        turretRotateConfig.softLimit.reverseSoftLimit(-10);
+        turretRotateConfig.softLimit.forwardSoftLimit(190);
+        turretRotateConfig.softLimit.reverseSoftLimit(-190);
         turretRotateConfig.softLimit.forwardSoftLimitEnabled(true);
         turretRotateConfig.softLimit.reverseSoftLimitEnabled(true);
         turretRotateConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(0.1,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
@@ -163,7 +163,7 @@ public class ShooterSubsystem extends SubsystemBase {
         turretRotateConfig.inverted(false);
         turretRotate.configure(turretRotateConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
         mrotateencoder = turretRotate.getEncoder();
-        mrotateencoder.setPosition(180); 
+        mrotateencoder.setPosition(0); 
         mrotatePID = turretRotate.getClosedLoopController();
 
 
@@ -239,7 +239,7 @@ turretAngle = (-shootangle-90.0 + mSwerve.getRotation());
 SmartDashboard.putNumber("TurretAngle", turretAngle);
 
 SmartDashboard.putNumber("TurretAngleFinal", (-shootangle%360));
-rotateTurret((-turretAngle%360)+180.0);
+rotateTurret((-turretAngle%180));
 
 SmartDashboard.putNumber("CurrentTurretAngle", mrotateencoder.getPosition());
 
