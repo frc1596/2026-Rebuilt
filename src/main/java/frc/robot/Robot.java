@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.jar.Attributes.Name;
 
@@ -42,6 +43,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommand;
+import frc.robot.subsystems.Field;
 // Import the subsystems here 
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Limelight;
@@ -64,9 +66,10 @@ public class Robot extends TimedRobot {
 
   private Command m_autonomousCommand;
   //private final VisionSubsytem vision = new VisionSubsytem();
+  private final Field Field1 = new Field();
   private final IntakeSubsystem intake = new IntakeSubsystem();
   private final SwerveSubsystem swerve = new SwerveSubsystem(); 
-  private final ShooterSubsystem shooter = new ShooterSubsystem(operatorController, swerve);
+  private final ShooterSubsystem shooter = new ShooterSubsystem(operatorController, swerve, Field1);
 
   // Sensor if we need it later 
   //public static DigitalInput coralSensor = new DigitalInput(7);
@@ -104,7 +107,7 @@ private int m_rainbowFirstPixelHue=90;
     //Named commands for the pathplanner auto
 
     NamedCommands.registerCommand("IntakeFuel", intake.startFuelIntakeCmdAuto(1.0));
-    NamedCommands.registerCommand("Intake Down", intake.intakePivot(13.2));
+    NamedCommands.registerCommand("Intake Down", intake.intakePivot(13.8));
     NamedCommands.registerCommand("Intake Up", intake.intakePivot(3.2));
 NamedCommands.registerCommand("startShoot", shooter.startShoot());
 NamedCommands.registerCommand("stopShoot", shooter.stopShoot());
@@ -299,13 +302,14 @@ shooter.setfalse(); //if auto runs long, this is needed to stop the shooter
 Trigger manualDown = operatorController.x();
 Trigger manualUp = operatorController.y();
 
+
     //Commands/Bindings 
     manualDown.onTrue(intake.manualPivot(1));
         manualUp.onTrue(intake.manualPivot(-1));
 
     startIntake.whileTrue(intake.startFuelIntakeCmd(1.0));
     intakeUp.whileTrue(intake.intakePivot(3.1)); 
-    intakeDown.whileTrue(intake.intakePivot(13.2));//.alongWith(intake.startFuelIntakeCmd(-0.2)));
+    intakeDown.whileTrue(intake.intakePivot(14.5));//.alongWith(intake.startFuelIntakeCmd(-0.2)));
 reverseIntake.whileTrue(intake.startFuelIntakeCmd(-0.2));
     // intakeUp.whileTrue(intake.intakePivot(1-0.1)); 
     // intakeDown.whileTrue(intake.intakePivot(1-0.323));

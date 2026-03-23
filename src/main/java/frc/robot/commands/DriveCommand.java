@@ -25,7 +25,7 @@ public class DriveCommand extends Command {
 
   private PIDController xController = new PIDController(0.35, 0, 0.0); // left right
   private PIDController yController = new PIDController(0.2, 0.0, 0.0);// forward backward
-  private PIDController autoAimController = new PIDController(0.3, 0, 0.0);
+  private PIDController autoAimController = new PIDController(0.02, 0, 0.0);
 
   private LinearFilter aimFilter = LinearFilter.movingAverage(3);
   private LinearFilter xFilter2 = LinearFilter.movingAverage(3);
@@ -53,7 +53,7 @@ public class DriveCommand extends Command {
     mController2 = XboxController2;
     mController = XboxController;
 
-    autoAimController.enableContinuousInput(-360, 360);
+    autoAimController.enableContinuousInput(-180, 180);
 
     addRequirements(mSwerve);
   }
@@ -73,8 +73,16 @@ public class DriveCommand extends Command {
     yVel = mController.getLeftY() ;
     xVel = mController.getLeftX() ;
 
-    // Trigger Drive Method (comment out these 4 lines to go back to normal drive)
-    // driveDirection = Math.atan2(yVel, xVel);
+    driveDirection = Math.atan2(xVel,yVel);
+    rotVel = -mController.getRightX();
+    if (mController.getLeftBumperButton()){
+      rotVel = autoAimController.calculate(mSwerve.getRotation()+180.0,Math.toDegrees(driveDirection)%360);
+
+    }
+    SmartDashboard.putNumber("SwerveAngle", mSwerve.getRotation());
+        SmartDashboard.putNumber("DriveDirection", Math.toDegrees(driveDirection));
+
+    // Trigger Drive Method (comment out these 3 lines to go back to normal drive)
     // driveMagnitude = mController.getRightTriggerAxis();
     // yVel = Math.sin(driveDirection) * driveMagnitude;
     // xVel = Math.cos(driveDirection) * driveMagnitude;
@@ -98,7 +106,6 @@ public class DriveCommand extends Command {
       mController.setRumble(RumbleType.kLeftRumble, 0);
       mController.setRumble(RumbleType.kRightRumble, 0);
     }
-    rotVel = -mController.getRightX();
 
     yVel = yHelper.setInput(yVel).applyPower(2).value;
     xVel = xHelper.setInput(xVel).applyPower(2).value;
@@ -179,17 +186,17 @@ public class DriveCommand extends Command {
   }
 
 
-  // Check if the robot is done moving based on velocity thresholds
-public boolean isDoneMoving (){
+//   // Check if the robot is done moving based on velocity thresholds
+// public boolean isDoneMoving (){
 
-  if(mController.getLeftBumper() && Math.abs(xVel) < 0.05 && Math.abs(yVel) < 0.05 && Math.abs(rotVel) < 0.05){
-    return true;
-  }
-  else{
-    return false;
-  }
+//   if(mController.getLeftBumper() && Math.abs(xVel) < 0.05 && Math.abs(yVel) < 0.05 && Math.abs(rotVel) < 0.05){
+//     return true;
+//   }
+//   else{
+//     return false;
+//   }
 
-}
+// }
 
 
 

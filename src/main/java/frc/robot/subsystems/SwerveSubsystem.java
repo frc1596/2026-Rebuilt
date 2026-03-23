@@ -21,6 +21,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -85,7 +86,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
 
   private final AHRS gyro = new AHRS(NavXComType.kMXP_SPI);
-  private final SwerveDrive mSwerveDrive = new SwerveDrive(this::getRotation, Module1, Module2, Module3, Module4);
+  public final SwerveDrive mSwerveDrive = new SwerveDrive(this::getRotation, Module1, Module2, Module3, Module4);
   private SimSwerveModule[] modules;
   private SwerveDriveKinematics kinematics;
   private SwerveDriveOdometry odometry;
