@@ -61,12 +61,13 @@ public class DriveCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+   // mSwerve.mSwerveDrive.setLocation(12.7, 5.25, 0);
+
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-
     double driveDirection = 0;
     double driveMagnitude = 0;
 

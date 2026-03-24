@@ -189,6 +189,7 @@ NamedCommands.registerCommand("stopShoot", shooter.stopShoot());
     // continue until interrupted by another command, remove`
     // this line or comment it out.
     
+    intake.intakePivot(3.1); 
 
     //continuously runs the DriveCommand. If some other command requires the swerve, that one will take priority
      drivetrain = new DriveCommand(swerve, driverController, operatorController);

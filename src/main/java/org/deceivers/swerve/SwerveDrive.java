@@ -123,13 +123,13 @@ public class SwerveDrive {
 if (kTagLayout.getTagPose(target2.getFiducialId()).isPresent()) {
   Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target2.getBestCameraToTarget(), kTagLayout.getTagPose(target2.getFiducialId()).get(), kRobotToCam2);
 Pose2d robot2dpose = robotPose.toPose2d();
-//mSwerveDrivePoseEstimator.addVisionMeasurement(robot2dpose, result2.getTimestampSeconds());
+mSwerveDrivePoseEstimator.addVisionMeasurement(robot2dpose, result2.getTimestampSeconds());
 
 }
             }
 
 
-                  mSwerveDrivePoseEstimator.update(Rotation2d.fromDegrees(mGyroAngle.getAsDouble()+180.0), states);
+                  mSwerveDrivePoseEstimator.update(Rotation2d.fromDegrees(mGyroAngle.getAsDouble()+45.0), states);
 
                   SmartDashboard.putNumber("FieldLocationX", mSwerveDrivePoseEstimator.getEstimatedPosition().getX());
                     SmartDashboard.putNumber("FieldLocationY", mSwerveDrivePoseEstimator.getEstimatedPosition().getY());

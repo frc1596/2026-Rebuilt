@@ -162,7 +162,7 @@ public class SwerveModuleV3 implements SwerveModule {
 
     // Get the position of swerve modules (distance and angle)
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(getDistance(), Rotation2d.fromDegrees(getRotation()));
+        return new SwerveModulePosition(-getDistance(), Rotation2d.fromDegrees(getRotation()));
     }
 
     // Get the distance of the drive encoder

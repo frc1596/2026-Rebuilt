@@ -26,6 +26,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -80,7 +81,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
      private TrapezoidProfile.State m_rotategoal = new TrapezoidProfile.State(0,0); 
      private TrapezoidProfile.State m_rotatesetpoint = new TrapezoidProfile.State(0,0);
- private final TrapezoidProfile m_rotateprofile =  new TrapezoidProfile(new TrapezoidProfile.Constraints(360, 4000));
+ private final TrapezoidProfile m_rotateprofile =  new TrapezoidProfile(new TrapezoidProfile.Constraints(1000, 4000));
 
     // MedianFilter filter = new MedianFilter(19);
     // MedianFilter shootfilter = new MedianFilter(19);
@@ -104,21 +105,25 @@ public class ShooterSubsystem extends SubsystemBase {
      SwerveSubsystem mSwerve; 
      Field mField;
      public ShooterSubsystem(CommandXboxController operatorController, SwerveSubsystem swerve,Field Field1) {
-        hoodmap.put(4.5,3.0);// ~6 ft
-        hoodmap.put(4.0, 2.5);// ~9ft
-        hoodmap.put(3.0, 2.0);// ~12 ft
-        hoodmap.put(2.4, 1.4);
-        hoodmap.put(2.0,1.2);// ~15 ft
-        hoodmap.put(1.0,1.0);// ~15 ft
+        hoodmap.put(5.5,3.0);// ~6 ft
+        hoodmap.put(5.0, 2.5);// ~9ft
+        hoodmap.put(4.0, 2.0);// ~12 ft
+        hoodmap.put(3.4, 1.4);
+        hoodmap.put(3.0,1.2);// ~15 ft
+        hoodmap.put(2.0,1.0);// ~15 ft
+        hoodmap.put(1.0,0.0);// ~15 ft
         hoodmap.put(0.0,0.0);// ~15 ft
-    
-        shootmap.put(4.5, 64.0);// ~9ft
-        shootmap.put(4.0, 61.0);// ~9ft
-        shootmap.put(3.0, 60.0);// ~12 ft
-        shootmap.put(2.4, 55.0);
-        shootmap.put(2.0,50.0);// ~15 ft
-        shootmap.put(1.0,45.0);// ~15 ft
-        shootmap.put(0.0,40.0);// ~15 ft
+
+
+        shootmap.put(5.5, 64.0);// ~9ft
+        shootmap.put(5.0, 61.0);// ~9ft
+        shootmap.put(4.0, 60.0);// ~12 ft
+        shootmap.put(3.4, 55.0);
+        shootmap.put(3.0,50.0);// ~15 ft
+        shootmap.put(2.0,45.0);// ~15 ft
+        shootmap.put(1.0,40.0);// ~15 ft
+        shootmap.put(0.0,30.0);// ~15 ft
+
 
         tof.put(0.0, 0.8);
         tof.put(4.5, 2.0);
@@ -153,7 +158,7 @@ public class ShooterSubsystem extends SubsystemBase {
         turretRotateConfig.softLimit.reverseSoftLimit(-190);
         turretRotateConfig.softLimit.forwardSoftLimitEnabled(true);
         turretRotateConfig.softLimit.reverseSoftLimitEnabled(true);
-        turretRotateConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(0.1,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
+        turretRotateConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(0.12,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
   //  turretRotateConfig.closedLoop.allowedClosedLoopError(1.0, ClosedLoopSlot.kSlot0);
 
         turretRotateConfig.idleMode(IdleMode.kBrake);
@@ -236,11 +241,11 @@ SmartDashboard.putNumber("Hubdistance", distance);
 SmartDashboard.putNumber("ShootAngle", shootangle);
 
 turretAngle = (-shootangle-90.0 + mSwerve.getRotation());
-SmartDashboard.putNumber("TurretAngle", turretAngle);
+SmartDashboard.putNumber("TurretAngle", MathUtil.angleModulus(-turretAngle));
 
-SmartDashboard.putNumber("TurretAngleFinal", (-shootangle%360));
-rotateTurret((-turretAngle%180));
-
+//SmartDashboard.putNumber("TurretAngleFinal", (-shootangle%360));
+//rotateTurret((-turretAngle%180));
+rotateTurret(Math.toDegrees(MathUtil.angleModulus(-Math.toRadians(turretAngle))));
 SmartDashboard.putNumber("CurrentTurretAngle", mrotateencoder.getPosition());
 
     //lookup maps
