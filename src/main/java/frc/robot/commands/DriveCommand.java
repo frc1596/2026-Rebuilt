@@ -80,6 +80,15 @@ public class DriveCommand extends Command {
       rotVel = autoAimController.calculate(mSwerve.getRotation()+180.0,Math.toDegrees(driveDirection)%360);
 
     }
+
+
+    if(mController2.rightBumper().getAsBoolean())
+    {
+      driveFactor=0.1;
+    }
+    else{
+      driveFactor=0.8;
+    }
     SmartDashboard.putNumber("SwerveAngle", mSwerve.getRotation());
         SmartDashboard.putNumber("DriveDirection", Math.toDegrees(driveDirection));
 
@@ -100,7 +109,7 @@ public class DriveCommand extends Command {
     // ElevatorSubsystem.elevatorLevel);
 
     // rumble when 20 seconds left
-    if (DriverStation.isTeleop() && (DriverStation.getMatchTime() < 20.0) && (DriverStation.getMatchTime() > 19.0)) {
+    if (DriverStation.isTeleop() && (DriverStation.getMatchTime() < 30.0) && (DriverStation.getMatchTime() > 19.0)) {
       mController.setRumble(RumbleType.kLeftRumble, 1);
       mController.setRumble(RumbleType.kRightRumble, 1);
     } else {

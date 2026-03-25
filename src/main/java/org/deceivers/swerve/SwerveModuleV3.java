@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.util.Units;
 
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.spark.SparkMax;
@@ -85,8 +86,11 @@ public class SwerveModuleV3 implements SwerveModule {
         // driveConfig.Slot0.kV = 0.0;
         driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
-        driveConfig.Feedback.SensorToMechanismRatio = 1/(0.319024/6.12/60.0)*0.019754*0.739*(1+0.2);//simplifies to 11.5? circumference of wheel is 12.56inch
-        //  driveConfig
+       // driveConfig.Feedback.SensorToMechanismRatio = 1.0/(0.319024/6.12/60.0)*0.019754*0.739*(1+0.2);//simplifies to 11.5? circumference of wheel is 12.56inch
+       driveConfig.Feedback.SensorToMechanismRatio = 6.12*(1.0/(Units.inchesToMeters(4.0)*Math.PI)); 
+       
+       
+       //  driveConfig
         // .inverted(true)
         // .idleMode(IdleMode.kBrake);
         // driveConfig.encoder

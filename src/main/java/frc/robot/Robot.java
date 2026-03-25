@@ -34,6 +34,7 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -160,8 +161,22 @@ NamedCommands.registerCommand("stopShoot", shooter.stopShoot());
   public void disabledPeriodic() {
     // SmartDashboard.putNumber("FID", limelight.getFid());
     // SmartDashboard.putNumber("Intake Current", examplePD.getCurrent(2));
-
+    var currentAlliance = DriverStation.getAlliance();
+    int redBrightness = 0;
+    int blueBrightness = 0;
+    if(currentAlliance.get()== Alliance.Red){
+      redBrightness=255;
+      for (int i = 0; i < 59; i++) {
+        m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness);
       }
+    }
+    else if(currentAlliance.get()== Alliance.Blue){
+      blueBrightness=255;
+      for (int i = 0; i < 59; i++) {
+        m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness);
+      }
+    }
+  }
     
    
   @Override
@@ -209,17 +224,60 @@ shooter.setfalse(); //if auto runs long, this is needed to stop the shooter
   @Override
   public void teleopPeriodic() {
     //sets the LED color based on which alliance we're on
-    if(LimelightHelpers.getTV("limelight")){
-             for (int i = 0; i < 59; i++) {
-           m_ledBuffer.setRGB(i, 0, 255, 0); // grb
-         }
-        }else{
+    var currentAlliance = DriverStation.getAlliance();
+    int redBrightness = 0;
+        int blueBrightness = 0;
+
+redBrightness = 0;
+ blueBrightness = 0;
+if((currentAlliance.get() == Alliance.Red) && (DriverStation.getGameSpecificMessage()=="R")){
+  redBrightness = 255;
+}else if((currentAlliance.get() == Alliance.Blue) && (DriverStation.getGameSpecificMessage()=="B")){
+  blueBrightness = 255;
+}
+
+    if(DriverStation.getGameSpecificMessage()=="R"){
+      if(DriverStation.getMatchTime()<160 && DriverStation.getMatchTime()>140){
+           for (int i = 0; i < 59; i++) {
+           m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness); // grb   
+          }
+        }
+        else if(DriverStation.getMatchTime()<140 && DriverStation.getMatchTime()>130){
+           for (int i = 0; i < 59; i++) {
+           m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness); // grb   
+          }
+        }
+        else if(DriverStation.getMatchTime()<130 && DriverStation.getMatchTime()>105){
+           for (int i = 0; i < 59; i++) {
+           m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness); // grb   
+          }
+        }
+        else if(DriverStation.getMatchTime()<80 && DriverStation.getMatchTime()>55){
+           for (int i = 0; i < 59; i++) {
+           m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness); // grb   
+          }
+        }
+        else if(DriverStation.getMatchTime()<55 && DriverStation.getMatchTime()>30){
+           for (int i = 0; i < 59; i++) {
+           m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness); // grb   
+          }
+        }
+        else if(DriverStation.getMatchTime()<30){
+           for (int i = 0; i < 59; i++) {
+           m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness); // grb   
+          }
+    }
+    // (LimelightHelpers.getTV("limelight")){
+    //          for (int i = 0; i < 59; i++) {
+    //        m_ledBuffer.setRGB(i, 0, 255, 0); // grb
+    //      }
+        else{
           for (int i = 0; i < 59; i++) {
            m_ledBuffer.setRGB(i, 0, 0, 0); // grb
          }
-        }
+        }}
     m_led.setData(m_ledBuffer);
-
+      
       // if (driverController.getYButton()){
       //   shooter.setFeederSpeed(1);
       //   shooter.setSpindexterSpeed(1);
@@ -255,7 +313,7 @@ shooter.setfalse(); //if auto runs long, this is needed to stop the shooter
 //         m_ledBuffer.setRGB(i, sigma, 0, 0); // grb
 //       } 
       // rainbow();
-    
+      
   }
 
   @Override

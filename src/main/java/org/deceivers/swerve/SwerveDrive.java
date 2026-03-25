@@ -128,8 +128,9 @@ mSwerveDrivePoseEstimator.addVisionMeasurement(robot2dpose, result2.getTimestamp
 }
             }
 
+                  SmartDashboard.putNumber("GyroAngle", mGyroAngle.getAsDouble());
 
-                  mSwerveDrivePoseEstimator.update(Rotation2d.fromDegrees(mGyroAngle.getAsDouble()+45.0), states);
+                  mSwerveDrivePoseEstimator.update(Rotation2d.fromDegrees(mGyroAngle.getAsDouble()), states);
 
                   SmartDashboard.putNumber("FieldLocationX", mSwerveDrivePoseEstimator.getEstimatedPosition().getX());
                     SmartDashboard.putNumber("FieldLocationY", mSwerveDrivePoseEstimator.getEstimatedPosition().getY());

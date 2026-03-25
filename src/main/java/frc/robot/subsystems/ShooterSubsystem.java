@@ -98,7 +98,7 @@ public class ShooterSubsystem extends SubsystemBase {
      private static InterpolatingDoubleTreeMap shootmap = new InterpolatingDoubleTreeMap();
      private static InterpolatingDoubleTreeMap tof = new InterpolatingDoubleTreeMap();
 
-      Transform2d shootertransform = new Transform2d(-8.5/39.37, -2.0/39.37, Rotation2d.fromDegrees(180));
+      Transform2d shootertransform = new Transform2d(8.5/39.37, 2.0/39.37, Rotation2d.fromDegrees(180));
 
      CommandXboxController moperatorController;
      VisionSubsytem mvision;
@@ -220,11 +220,18 @@ private boolean inAuto = false;
         Pose2d swervexy = mSwerve.mSwerveDrive.getPose();
     
 Pose2d turretxy = swervexy.transformBy(shootertransform);
+SmartDashboard.putNumber("TurretX", turretxy.getX());
+SmartDashboard.putNumber("TurretY", turretxy.getY());
+
 double turretAngle;
 double shootangle=0;
 var alliance = DriverStation.getAlliance();
 if (alliance.isPresent()) {
-    if(alliance.get() == DriverStation.Alliance.Red){
+    if(moperatorController.leftBumper().getAsBoolean()){
+        distance = mField.feedRedLeft.getDistance(turretxy.getTranslation());
+        shootangle = mField.feedRedLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
+    }
+    else if(alliance.get() == DriverStation.Alliance.Red){
         distance = mField.redHubCenter.toTranslation2d().getDistance(turretxy.getTranslation());
         shootangle = mField.redHubCenter.toTranslation2d().minus(turretxy.getTranslation()).getAngle().getDegrees();       
     }
