@@ -90,7 +90,7 @@ public class DriveCommand extends Command {
       driveFactor=0.8;
     }
     SmartDashboard.putNumber("SwerveAngle", mSwerve.getRotation());
-        SmartDashboard.putNumber("DriveDirection", Math.toDegrees(driveDirection));
+     //   SmartDashboard.putNumber("DriveDirection", Math.toDegrees(driveDirection));
 
     // Trigger Drive Method (comment out these 3 lines to go back to normal drive)
     // driveMagnitude = mController.getRightTriggerAxis();

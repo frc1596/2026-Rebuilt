@@ -18,6 +18,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkClosedLoopController;
 
+import java.time.Period;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 
@@ -27,6 +28,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
@@ -53,6 +55,7 @@ public class SwerveModuleV3 implements SwerveModule {
 
       private PIDController azimuthPID = new PIDController(0.01, 0, 0);
     //private PIDController drivePID = new PIDController(0.01,0,0);
+        TalonFXConfiguration driveConfig = new TalonFXConfiguration(); 
 
     // need to update the speed to m/s
 
@@ -74,7 +77,6 @@ public class SwerveModuleV3 implements SwerveModule {
         //mDriveEncoder = mDriveMotor.getEncoder();
 
         //SparkMaxConfig driveConfig = new SparkMaxConfig();
-        TalonFXConfiguration driveConfig = new TalonFXConfiguration(); 
         driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         driveConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         driveConfig.Feedback.FeedbackSensorSource = 
@@ -88,21 +90,8 @@ public class SwerveModuleV3 implements SwerveModule {
         driveConfig.CurrentLimits.SupplyCurrentLimit = 40.0;
        // driveConfig.Feedback.SensorToMechanismRatio = 1.0/(0.319024/6.12/60.0)*0.019754*0.739*(1+0.2);//simplifies to 11.5? circumference of wheel is 12.56inch
        driveConfig.Feedback.SensorToMechanismRatio = 6.12*(1.0/(Units.inchesToMeters(4.0)*Math.PI)); 
-       
-       
-       //  driveConfig
-        // .inverted(true)
-        // .idleMode(IdleMode.kBrake);
-        // driveConfig.encoder
-        // .positionConversionFactor(0.319024/6.12)
-        // .velocityConversionFactor(((0.319024/6.12) / 60));
-        // driveConfig.closedLoop
-        // .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        // .pid(1.0, 0.0, 0.0)
-        // .velocityFF(0.0);
-        
-        //mDriveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        mDriveMotor.getConfigurator().apply(driveConfig);
+    
+                mDriveMotor.getConfigurator().apply(driveConfig);
         
         SparkMaxConfig azimuthConfig = new SparkMaxConfig();
 
@@ -127,6 +116,16 @@ public class SwerveModuleV3 implements SwerveModule {
         // mAzimuthPID.setPositionPIDWrappingMinInput(0);
         // mAzimuthPID.setPositionPIDWrappingMaxInput(360);
     }
+
+public void setAutoDistances(){
+        driveConfig.Feedback.SensorToMechanismRatio = 1.0/(0.319024/6.12/60.0)*0.019754*0.739*(1+0.2);//simplifies to 11.5? circumference of wheel is 12.56inch
+        mDriveMotor.getConfigurator().apply(driveConfig);
+}
+
+public void setTeleopDistance(){
+        driveConfig.Feedback.SensorToMechanismRatio = 6.12*(1.0/(Units.inchesToMeters(4.0)*Math.PI)); 
+        mDriveMotor.getConfigurator().apply(driveConfig);
+}
 
     // Sets the drive motor speed in open loop mode
     public void setSpeed(double speed) {
@@ -166,7 +165,7 @@ public class SwerveModuleV3 implements SwerveModule {
 
     // Get the position of swerve modules (distance and angle)
     public SwerveModulePosition getPosition() {
-        return new SwerveModulePosition(-getDistance(), Rotation2d.fromDegrees(getRotation()));
+        return new SwerveModulePosition(getDistance(), Rotation2d.fromDegrees(getRotation()));
     }
 
     // Get the distance of the drive encoder
@@ -192,7 +191,7 @@ public class SwerveModuleV3 implements SwerveModule {
         mAzimuthMotor.set(azimuthPID.calculate(current.getDegrees(), setpoint));
         mDriveMotor.set(velocity);
 
-        SmartDashboard.putNumber("CurrentOutputManualVeloctiy", velocity);
+        //SmartDashboard.putNumber("CurrentOutputManualVeloctiy", velocity);
         //SmartDashboard.putNumber(mName + "Angle", current.getDegrees());
     }
 

@@ -81,15 +81,15 @@ public class ShooterSubsystem extends SubsystemBase {
 
      private TrapezoidProfile.State m_rotategoal = new TrapezoidProfile.State(0,0); 
      private TrapezoidProfile.State m_rotatesetpoint = new TrapezoidProfile.State(0,0);
- private final TrapezoidProfile m_rotateprofile =  new TrapezoidProfile(new TrapezoidProfile.Constraints(1000, 4000));
+ private final TrapezoidProfile m_rotateprofile =  new TrapezoidProfile(new TrapezoidProfile.Constraints(1500, 5000));
 
     // MedianFilter filter = new MedianFilter(19);
     // MedianFilter shootfilter = new MedianFilter(19);
     // MedianFilter rotatefilter = new MedianFilter(19);
 
-    LinearFilter filter = LinearFilter.movingAverage(5);
-    LinearFilter shootfilter = LinearFilter.movingAverage(5);
-    LinearFilter rotatefilter = LinearFilter.movingAverage(5);
+    LinearFilter filter = LinearFilter.movingAverage(3);
+    LinearFilter shootfilter = LinearFilter.movingAverage(3);
+   // LinearFilter rotatefilter = LinearFilter.movingAverage(5);
     // private final VisionSubsytem vision;
 
 //private ProfiledPIDController autoaimController = new ProfiledPIDController(0.015, 0, 0, m_rotateprofile);
@@ -98,32 +98,31 @@ public class ShooterSubsystem extends SubsystemBase {
      private static InterpolatingDoubleTreeMap shootmap = new InterpolatingDoubleTreeMap();
      private static InterpolatingDoubleTreeMap tof = new InterpolatingDoubleTreeMap();
 
-      Transform2d shootertransform = new Transform2d(8.5/39.37, 2.0/39.37, Rotation2d.fromDegrees(180));
+      Transform2d shootertransform = new Transform2d(9.375/39.37, 3.5/39.37, Rotation2d.fromDegrees(180));
 
      CommandXboxController moperatorController;
      VisionSubsytem mvision;
      SwerveSubsystem mSwerve; 
      Field mField;
+
      public ShooterSubsystem(CommandXboxController operatorController, SwerveSubsystem swerve,Field Field1) {
         hoodmap.put(5.5,3.0);// ~6 ft
         hoodmap.put(5.0, 2.5);// ~9ft
         hoodmap.put(4.0, 2.0);// ~12 ft
-        hoodmap.put(3.4, 1.4);
-        hoodmap.put(3.0,1.2);// ~15 ft
-        hoodmap.put(2.0,1.0);// ~15 ft
+        hoodmap.put(3.0,1.4);// ~15 ft
+        hoodmap.put(2.0,1.1);// ~15 ft
         hoodmap.put(1.0,0.0);// ~15 ft
         hoodmap.put(0.0,0.0);// ~15 ft
 
-
-        shootmap.put(5.5, 64.0);// ~9ft
-        shootmap.put(5.0, 61.0);// ~9ft
-        shootmap.put(4.0, 60.0);// ~12 ft
-        shootmap.put(3.4, 55.0);
-        shootmap.put(3.0,50.0);// ~15 ft
-        shootmap.put(2.0,45.0);// ~15 ft
-        shootmap.put(1.0,40.0);// ~15 ft
+        shootmap.put(12.0,100.0);
+        shootmap.put(7.0,80.0);
+        shootmap.put(5.5, 68.0);// ~9ft
+        shootmap.put(5.0, 63.0);// ~9ft
+        shootmap.put(4.0, 58.0);// ~12 ft
+        shootmap.put(3.0,53.0);// ~15 ft
+        shootmap.put(2.0,48.0);// ~15 ft
+        shootmap.put(1.0,45.0);// ~15 ft
         shootmap.put(0.0,30.0);// ~15 ft
-
 
         tof.put(0.0, 0.8);
         tof.put(4.5, 2.0);
@@ -139,7 +138,7 @@ public class ShooterSubsystem extends SubsystemBase {
         spindexterConfig.idleMode(IdleMode.kCoast);
         spindexterConfig.encoder.positionConversionFactor(1);
         spindexterConfig.encoder.velocityConversionFactor(1);
-        spindexterConfig.smartCurrentLimit(50);
+        spindexterConfig.smartCurrentLimit(40);
         spindexterConfig.inverted(false);
         spindexter.configure(spindexterConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
         
@@ -181,11 +180,11 @@ public class ShooterSubsystem extends SubsystemBase {
         TalonFXConfiguration shootoneConfig = new TalonFXConfiguration();
         shootoneConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         shootoneConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        shootoneConfig.CurrentLimits.SupplyCurrentLimit = 70;
+        shootoneConfig.CurrentLimits.SupplyCurrentLimit = 60;
         shootoneConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
         shootoneConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
         shootoneConfig.Slot0.kV = .11;
-        shootoneConfig.Slot0.kP = .34;
+        shootoneConfig.Slot0.kP = .36;
         shootoneConfig.Slot0.kS = 0.14;
         shootoneConfig.Slot0.kI = 0;
         shootoneConfig.Slot0.kD = 0;
@@ -194,21 +193,21 @@ public class ShooterSubsystem extends SubsystemBase {
         TalonFXConfiguration shoottwoConfig = new TalonFXConfiguration();
         shoottwoConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
         shoottwoConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        shoottwoConfig.CurrentLimits.SupplyCurrentLimit = 70;
+        shoottwoConfig.CurrentLimits.SupplyCurrentLimit = 60;
         shoottwoConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
         shoottwoConfig.CurrentLimits.SupplyCurrentLowerLimit = 40;
         shoottwoConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         shoottwoConfig.Slot0.kV = .11;
-        shoottwoConfig.Slot0.kP = .30;
+        shoottwoConfig.Slot0.kP = .36;
         shoottwoConfig.Slot0.kI = 0;
-        shoottwoConfig.Slot0.kS = 0.12;
+        shoottwoConfig.Slot0.kS = 0.14;
         shoottwoConfig.Slot0.kD = 0;
         shootTwo.getConfigurator().apply(shoottwoConfig, 0.05);
     }
 
     public double prevangle=0;
     public double distance = 0;
-private boolean inAuto = false;
+    private boolean inAuto = false;
 
     @Override
     public void periodic() {
@@ -216,92 +215,92 @@ private boolean inAuto = false;
         double hoodAngle = 0;
         double shooterSpeed = 0;
 
-    
         Pose2d swervexy = mSwerve.mSwerveDrive.getPose();
-    
-Pose2d turretxy = swervexy.transformBy(shootertransform);
-SmartDashboard.putNumber("TurretX", turretxy.getX());
-SmartDashboard.putNumber("TurretY", turretxy.getY());
+        Pose2d turretxy = swervexy.transformBy(shootertransform);
 
-double turretAngle;
-double shootangle=0;
-var alliance = DriverStation.getAlliance();
-if (alliance.isPresent()) {
-    if(moperatorController.leftBumper().getAsBoolean()){
-        distance = mField.feedRedLeft.getDistance(turretxy.getTranslation());
-        shootangle = mField.feedRedLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
-    }
-    else if(alliance.get() == DriverStation.Alliance.Red){
-        distance = mField.redHubCenter.toTranslation2d().getDistance(turretxy.getTranslation());
-        shootangle = mField.redHubCenter.toTranslation2d().minus(turretxy.getTranslation()).getAngle().getDegrees();       
-    }
-}
-else {
- distance = mField.blueHubCenter.toTranslation2d().getDistance(turretxy.getTranslation());
- shootangle = mField.blueHubCenter.toTranslation2d().minus(turretxy.getTranslation()).getAngle().getDegrees();
-}
-SmartDashboard.putNumber("HubCenterX", mField.redHubCenter.getX());
-SmartDashboard.putNumber("HubCenterY", mField.redHubCenter.getY());
-SmartDashboard.putNumber("Hubdistance", distance);
+        double turretAngle;
+        double shootangle = 0;
 
+        SmartDashboard.putNumber("TurretX", turretxy.getX());
+        SmartDashboard.putNumber("TurretY", turretxy.getY());
 
-SmartDashboard.putNumber("ShootAngle", shootangle);
+        //check which alliance we're on
+        var alliance = DriverStation.getAlliance();
 
-turretAngle = (-shootangle-90.0 + mSwerve.getRotation());
-SmartDashboard.putNumber("TurretAngle", MathUtil.angleModulus(-turretAngle));
+        if (alliance.isPresent()) {
+            if(moperatorController.leftBumper().getAsBoolean()){ //if pass
+                if(alliance.get() == DriverStation.Alliance.Red){
+                    if(turretxy.getX() > Field.redHubCenter.getX()){
+                        distance = mField.feedRedLeft.getDistance(turretxy.getTranslation());
+                        shootangle = mField.feedRedLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
+                    }else{
+                        distance = mField.feedRedRight.getDistance(turretxy.getTranslation());
+                        shootangle = mField.feedRedRight.minus(turretxy.getTranslation()).getAngle().getDegrees();
+                    }
+                }else{
+                    if(turretxy.getX() > Field.blueHubCenter.getX()){
+                        distance = mField.feedBlueLeft.getDistance(turretxy.getTranslation());
+                        shootangle = mField.feedBlueLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
+                    }else{
+                        distance = mField.feedBlueRight.getDistance(turretxy.getTranslation());
+                        shootangle = mField.feedBlueRight.minus(turretxy.getTranslation()).getAngle().getDegrees();
+                    }
+                }
+            }
+            else if(alliance.get() == DriverStation.Alliance.Red){
+                //aim for red hub if on red alliance
+                distance = mField.redHubCenter.toTranslation2d().getDistance(turretxy.getTranslation());
+                shootangle = mField.redHubCenter.toTranslation2d().minus(turretxy.getTranslation()).getAngle().getDegrees();       
+            }else {
+                //aim for blue hub if on blue alliance
+                distance = mField.blueHubCenter.toTranslation2d().getDistance(turretxy.getTranslation());
+                shootangle = mField.blueHubCenter.toTranslation2d().minus(turretxy.getTranslation()).getAngle().getDegrees();
+            }
+        }
 
-//SmartDashboard.putNumber("TurretAngleFinal", (-shootangle%360));
-//rotateTurret((-turretAngle%180));
-rotateTurret(Math.toDegrees(MathUtil.angleModulus(-Math.toRadians(turretAngle))));
-SmartDashboard.putNumber("CurrentTurretAngle", mrotateencoder.getPosition());
+        SmartDashboard.putNumber("Hubdistance", distance);
 
-    //lookup maps
-    hoodAngle = hoodmap.get(filter.calculate(distance));
-    shooterSpeed = shootmap.get(shootfilter.calculate(distance));
-    
-    //Pid update and send to sparkmax
-    m_hoodsetpoint = m_pivotProfile.calculate(.02, m_hoodsetpoint, m_hoodGoal);
-    m_rotatesetpoint = m_rotateprofile.calculate(.02, m_rotatesetpoint, m_rotategoal);
-    SmartDashboard.putNumber("Trapezoid Turret Angle", m_rotatesetpoint.position);
-    mHoodPID.setReference(m_hoodsetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
-    mrotatePID.setReference(m_rotatesetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
- 
+        //calculate and set turret angle
+        turretAngle = (-shootangle-90.0 + mSwerve.getRotation());
+        rotateTurret(Math.toDegrees(MathUtil.angleModulus(-Math.toRadians(turretAngle))));
 
-//Operator Controls
+        //lookup maps
+        hoodAngle = hoodmap.get(filter.calculate(distance));
+        shooterSpeed = shootmap.get(shootfilter.calculate(distance));
+        
+        //Pid update and send to sparkmax
+        m_hoodsetpoint = m_pivotProfile.calculate(.02, m_hoodsetpoint, m_hoodGoal);
+        m_rotatesetpoint = m_rotateprofile.calculate(.02, m_rotatesetpoint, m_rotategoal);
+        mHoodPID.setReference(m_hoodsetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
+        mrotatePID.setReference(m_rotatesetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
+
+        //Operator Controls
         if (moperatorController.rightBumper().getAsBoolean() || (inAuto == true)) {
-                setHoodAngle(hoodAngle);
-            if (getShootOneSpeed() == 0.0 && getShootTwoSpeed() == 0.0) // if the shooters have not been started
-            {
+            setHoodAngle(hoodAngle);
+
+            if (getShootOneSpeed() == 0.0 && getShootTwoSpeed() == 0.0){
                 setShootSpeed(shooterSpeed); // start the shooter
-            } else if (Math.abs(getShootOneSpeed()) > (shooterSpeed-3.0)) // if the shooters
-                                                                                                   // are up to speed
-            {
+            } else if (Math.abs(getShootOneSpeed()) > (shooterSpeed-3.0)){
                 setSpindexterSpeed(-1.0); // start everything else
                 setFeederSpeed(1.0);
                 setShootSpeed(shooterSpeed); // start the shooter
-            } else {
-                // doNothing();
-            }
-        }else if(moperatorController.povLeft().getAsBoolean() && !LimelightHelpers.getTV("limelight")) {
-        
-            
+            } 
         }
-        //pass button
+        //pass button 
         else if (moperatorController.leftBumper().getAsBoolean()) {
-        setHoodAngle(3);
-        setShootSpeed(70.0);
-        if (Math.abs(getShootOneSpeed()) > 65.0) // if the shooters                                                                                  // are up to speed
-        {
-            setSpindexterSpeed(-1.0); // start everything else
-            setFeederSpeed(1.0);
+            if (Math.abs(getShootOneSpeed()) > (shooterSpeed-3.0)){
+                setSpindexterSpeed(-1.0); // start everything else
+                setFeederSpeed(1.0);
+            }
+        } else{
+                setSpindexterSpeed(0);
+                setFeederSpeed(0);
+                setHoodAngle(0);
+                setShootSpeed(0);
         }
-    } else{
-            setSpindexterSpeed(0);
-            setFeederSpeed(0);
-            setHoodAngle(0);
-            setShootSpeed(0);
-            //rotateTurret(0);
-        }
+
+
+
     }
     
 
@@ -378,7 +377,7 @@ public Command stopShoot(){
 }
 
     public double getShootTwoSpeed() {
-        SmartDashboard.putNumber("ShooterSpeed", getShootOneSpeed());
+        //SmartDashboard.putNumber("ShooterSpeed", getShootOneSpeed());
         return (shootTwo.getRotorVelocity().getValueAsDouble());
     }
 
