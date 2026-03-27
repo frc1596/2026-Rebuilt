@@ -51,12 +51,12 @@ public class IntakeSubsystem extends SubsystemBase{
         //intakepivitconfig
         intakePivotConfig.idleMode(IdleMode.kBrake);
        // intakePivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pidf(2.0,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
-             intakePivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(2.4,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
+             intakePivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(2.7,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
 
     //     intakePivotConfig.closedLoop.positionWrappingEnabled(true);
     //   intakePivotConfig.closedLoop.positionWrappingMaxInput(1);
     //   intakePivotConfig.closedLoop.positionWrappingMinInput(0);
-      intakePivotConfig.encoder.positionConversionFactor(1); 
+        intakePivotConfig.encoder.positionConversionFactor(1); 
         intakePivotConfig.encoder.velocityConversionFactor(1); 
        // intakePivotConfig.encoder.inverted(false);
         intakePivotConfig.smartCurrentLimit(35);
@@ -69,7 +69,7 @@ public class IntakeSubsystem extends SubsystemBase{
 
          intakepivothelperconfig.idleMode(IdleMode.kBrake);
        // intakePivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pidf(2.0,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
-             intakepivothelperconfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(2.4,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
+             intakepivothelperconfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(2.9,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
              intakepivothelperconfig.follow(14,true);
       intakepivothelperconfig.encoder.positionConversionFactor(1); 
         intakepivothelperconfig.encoder.velocityConversionFactor(1); 
@@ -117,7 +117,7 @@ public class IntakeSubsystem extends SubsystemBase{
     }
 
     public boolean movePivotInPosition() {
-        return Math.abs(m_pivotSetpoint.position - m_pivotGoal.position) < 1.0;
+        return Math.abs(m_pivotSetpoint.position - m_pivotGoal.position) < 0.2;
     }
 
     public Command intakePivot(double angle)

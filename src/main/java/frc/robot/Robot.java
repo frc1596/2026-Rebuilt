@@ -223,59 +223,56 @@ shooter.setfalse(); //if auto runs long, this is needed to stop the shooter
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    //sets the LED color based on which alliance we're on
-    var currentAlliance = DriverStation.getAlliance();
-    int redBrightness = 0;
-        int blueBrightness = 0;
+ var allianceOpt = DriverStation.getAlliance();
+String gameMsg = DriverStation.getGameSpecificMessage();
 
-redBrightness = 0;
- blueBrightness = 0;
-if((currentAlliance.get() == Alliance.Red) && (DriverStation.getGameSpecificMessage()=="R")){
-  redBrightness = 255;
-}else if((currentAlliance.get() == Alliance.Blue) && (DriverStation.getGameSpecificMessage()=="B")){
-  blueBrightness = 255;
+int redBrightness = 0;
+int blueBrightness = 0;
+boolean shouldBeOn = false;
+
+// Safely check alliance
+if (allianceOpt.isPresent()) {
+    var alliance = allianceOpt.get();
+
+    if (alliance == Alliance.Red && "R".equals(gameMsg)) {
+        redBrightness = 255;
+    } else if (alliance == Alliance.Blue && "B".equals(gameMsg)) {
+        blueBrightness = 255;
+    }
+    // Match time logic
+double matchTime = DriverStation.getMatchTime();
+
+ shouldBeOn = false;
+
+if (("R".equals(gameMsg) && (alliance == Alliance.Blue)) || ("B".equals(gameMsg) && (alliance == Alliance.Red))) {
+    if ((matchTime < 160 && matchTime > 140) ||
+        (matchTime < 140 && matchTime > 130) ||
+        (matchTime < 130 && matchTime > 105) ||
+        (matchTime < 80 && matchTime > 55) ||
+        (matchTime < 30)) {
+        
+        shouldBeOn = true;
+    }
+}else{
+      if ((matchTime < 160 && matchTime > 140) ||
+        (matchTime < 140 && matchTime > 130) ||
+        (matchTime < 105 && matchTime > 80) ||
+        (matchTime < 55 && matchTime > 30) ||
+        (matchTime < 30)) {
+        
+        shouldBeOn = true;
+    }
+}
 }
 
-    if(DriverStation.getGameSpecificMessage()=="R"){
-      if(DriverStation.getMatchTime()<160 && DriverStation.getMatchTime()>140){
-           for (int i = 0; i < 59; i++) {
-           m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness); // grb   
-          }
-        }
-        else if(DriverStation.getMatchTime()<140 && DriverStation.getMatchTime()>130){
-           for (int i = 0; i < 59; i++) {
-           m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness); // grb   
-          }
-        }
-        else if(DriverStation.getMatchTime()<130 && DriverStation.getMatchTime()>105){
-           for (int i = 0; i < 59; i++) {
-           m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness); // grb   
-          }
-        }
-        else if(DriverStation.getMatchTime()<80 && DriverStation.getMatchTime()>55){
-           for (int i = 0; i < 59; i++) {
-           m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness); // grb   
-          }
-        }
-        else if(DriverStation.getMatchTime()<55 && DriverStation.getMatchTime()>30){
-           for (int i = 0; i < 59; i++) {
-           m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness); // grb   
-          }
-        }
-        else if(DriverStation.getMatchTime()<30){
-           for (int i = 0; i < 59; i++) {
-           m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness); // grb   
-          }
+// Apply LED output
+for (int i = 0; i < 59; i++) {
+    if (shouldBeOn) {
+        m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness); // GRB
+    } else {
+        m_ledBuffer.setRGB(i, 0, 0, 0); // off
     }
-    // (LimelightHelpers.getTV("limelight")){
-    //          for (int i = 0; i < 59; i++) {
-    //        m_ledBuffer.setRGB(i, 0, 255, 0); // grb
-    //      }
-        else{
-          for (int i = 0; i < 59; i++) {
-           m_ledBuffer.setRGB(i, 0, 0, 0); // grb
-         }
-        }}
+}
     m_led.setData(m_ledBuffer);
       
       // if (driverController.getYButton()){
@@ -363,13 +360,13 @@ Trigger manualUp = operatorController.y();
 
 
     //Commands/Bindings 
-    manualDown.onTrue(intake.manualPivot(1));
-        manualUp.onTrue(intake.manualPivot(-1));
+    //manualDown.onTrue(intake.manualPivot(1));
+    //    manualUp.onTrue(intake.manualPivot(-1));
 
     startIntake.whileTrue(intake.startFuelIntakeCmd(1.0));
     intakeUp.whileTrue(intake.intakePivot(3.1)); 
     intakeDown.whileTrue(intake.intakePivot(14.5));//.alongWith(intake.startFuelIntakeCmd(-0.2)));
-reverseIntake.whileTrue(intake.startFuelIntakeCmd(-0.2));
+reverseIntake.whileTrue(intake.startFuelIntakeCmd(-1.0));
     // intakeUp.whileTrue(intake.intakePivot(1-0.1)); 
     // intakeDown.whileTrue(intake.intakePivot(1-0.323));
     //reverseIntake.whileTrue(intake.startFuelIntakeCmd(-.5));

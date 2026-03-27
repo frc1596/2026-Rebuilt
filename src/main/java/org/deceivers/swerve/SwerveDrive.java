@@ -108,18 +108,23 @@ public class SwerveDrive {
         var target = result1.getBestTarget();
 
         // Calculate robot's field relative pose
-        if(target != null){
+        if((target != null) && DriverStation.isTeleopEnabled() && (target.getPoseAmbiguity() < 0.2)){
+                SmartDashboard.putBoolean("Camera1 is on", true);
+
             if (kTagLayout.getTagPose(target.getFiducialId()).isPresent()) {
 
                 Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), kTagLayout.getTagPose(target.getFiducialId()).get(), kRobotToCam);
                 Pose2d robot2dpose = robotPose.toPose2d();
                  mSwerveDrivePoseEstimator.addVisionMeasurement(robot2dpose, result1.getTimestampSeconds());
             }
+        }else{
+                        SmartDashboard.putBoolean("Camera1 is on", false);
+
         }
 
         var result2 = camera2.getLatestResult();
         var target2 = result2.getBestTarget();
-        if(target2 != null){
+        if((target2 != null) && DriverStation.isTeleopEnabled() && (target2.getPoseAmbiguity() < 0.2)){
         // Calculate robot's field relative pose
             if (kTagLayout.getTagPose(target2.getFiducialId()).isPresent()) {
                 Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target2.getBestCameraToTarget(), kTagLayout.getTagPose(target2.getFiducialId()).get(), kRobotToCam);

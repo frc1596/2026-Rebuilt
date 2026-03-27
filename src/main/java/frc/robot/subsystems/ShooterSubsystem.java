@@ -109,7 +109,7 @@ public class ShooterSubsystem extends SubsystemBase {
         hoodmap.put(5.5,3.0);// ~6 ft
         hoodmap.put(5.0, 2.5);// ~9ft
         hoodmap.put(4.0, 2.0);// ~12 ft
-        hoodmap.put(3.0,1.4);// ~15 ft
+        hoodmap.put(3.0,1.5);// ~15 ft
         hoodmap.put(2.0,1.1);// ~15 ft
         hoodmap.put(1.0,0.0);// ~15 ft
         hoodmap.put(0.0,0.0);// ~15 ft
@@ -118,9 +118,9 @@ public class ShooterSubsystem extends SubsystemBase {
         shootmap.put(7.0,80.0);
         shootmap.put(5.5, 68.0);// ~9ft
         shootmap.put(5.0, 63.0);// ~9ft
-        shootmap.put(4.0, 58.0);// ~12 ft
+        shootmap.put(4.0, 57.0);// ~12 ft good
         shootmap.put(3.0,53.0);// ~15 ft
-        shootmap.put(2.0,48.0);// ~15 ft
+        shootmap.put(2.0,45.0);// ~15 ft
         shootmap.put(1.0,45.0);// ~15 ft
         shootmap.put(0.0,30.0);// ~15 ft
 
@@ -205,7 +205,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shootTwo.getConfigurator().apply(shoottwoConfig, 0.05);
     }
 
-    public double prevangle=0;
+    public double prevangle = 0;
     public double distance = 0;
     private boolean inAuto = false;
 
@@ -230,7 +230,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if (alliance.isPresent()) {
             if(moperatorController.leftBumper().getAsBoolean()){ //if pass
                 if(alliance.get() == DriverStation.Alliance.Red){
-                    if(turretxy.getX() > Field.redHubCenter.getX()){
+                    if(turretxy.getY() < Field.redHubCenter.getY()){
                         distance = mField.feedRedLeft.getDistance(turretxy.getTranslation());
                         shootangle = mField.feedRedLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
                     }else{
@@ -238,7 +238,7 @@ public class ShooterSubsystem extends SubsystemBase {
                         shootangle = mField.feedRedRight.minus(turretxy.getTranslation()).getAngle().getDegrees();
                     }
                 }else{
-                    if(turretxy.getX() > Field.blueHubCenter.getX()){
+                    if(turretxy.getY() > Field.blueHubCenter.getY()){
                         distance = mField.feedBlueLeft.getDistance(turretxy.getTranslation());
                         shootangle = mField.feedBlueLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
                     }else{
@@ -288,9 +288,11 @@ public class ShooterSubsystem extends SubsystemBase {
         }
         //pass button 
         else if (moperatorController.leftBumper().getAsBoolean()) {
+            setShootSpeed(shooterSpeed); // start the shooter
             if (Math.abs(getShootOneSpeed()) > (shooterSpeed-3.0)){
                 setSpindexterSpeed(-1.0); // start everything else
                 setFeederSpeed(1.0);
+                setShootSpeed(shooterSpeed); // start the shooter
             }
         } else{
                 setSpindexterSpeed(0);
