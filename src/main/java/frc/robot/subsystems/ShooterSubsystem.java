@@ -87,12 +87,12 @@ public class ShooterSubsystem extends SubsystemBase {
     // MedianFilter shootfilter = new MedianFilter(19);
     // MedianFilter rotatefilter = new MedianFilter(19);
 
-    LinearFilter filter = LinearFilter.movingAverage(3);
-    LinearFilter shootfilter = LinearFilter.movingAverage(3);
+    LinearFilter filter = LinearFilter.movingAverage(5);
+    LinearFilter shootfilter = LinearFilter.movingAverage(5);
    // LinearFilter rotatefilter = LinearFilter.movingAverage(5);
     // private final VisionSubsytem vision;
-
-//private ProfiledPIDController autoaimController = new ProfiledPIDController(0.015, 0, 0, m_rotateprofile);
+ private final Constraints limelight_rotateprofile = new Constraints(.05, 0);
+ private ProfiledPIDController limelightautoaimController = new ProfiledPIDController(0.015, 0, 0, limelight_rotateprofile);
 
     private static InterpolatingDoubleTreeMap hoodmap = new InterpolatingDoubleTreeMap();
      private static InterpolatingDoubleTreeMap shootmap = new InterpolatingDoubleTreeMap();
@@ -211,7 +211,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-  
+
+
         double hoodAngle = 0;
         double shooterSpeed = 0;
 
@@ -260,10 +261,26 @@ public class ShooterSubsystem extends SubsystemBase {
 
         SmartDashboard.putNumber("Hubdistance", distance);
 
+        //SWAP BACK IF NEEDED
         //calculate and set turret angle
-        turretAngle = (-shootangle-90.0 + mSwerve.getRotation());
-        rotateTurret(Math.toDegrees(MathUtil.angleModulus(-Math.toRadians(turretAngle))));
+       // turretAngle = (-shootangle-90.0 + mSwerve.getRotation());
+         turretAngle = (-shootangle - 90.0 + mSwerve.mSwerveDrive.mSwerveDrivePoseEstimator.getEstimatedPosition().getRotation().getDegrees());
 
+//if left trigger pressed, use the limelight (needs tuning)
+    if(moperatorController.leftTrigger(0.5).getAsBoolean() && !moperatorController.leftBumper().getAsBoolean()){
+        Pose3d limelightposition = LimelightHelpers.getCameraPose3d_TargetSpace("limelight");
+        limelightautoaimController.setGoal(0);
+        limelightautoaimController.calculate(LimelightHelpers.getTX("limelight"));
+
+        //if Limelight has a valid target,
+        if(LimelightHelpers.getTV("limelight")){
+            distance = Math.sqrt(limelightposition.getZ()*limelightposition.getZ()+limelightposition.getX()*limelightposition.getX());
+        }
+    double limelightOutput = limelightautoaimController.calculate(LimelightHelpers.getTX("limelight"));
+    rotateTurret(mrotateencoder.getPosition()+limelightOutput);
+    }else{
+        rotateTurret(Math.toDegrees(MathUtil.angleModulus(-Math.toRadians(turretAngle))));
+    }
         //lookup maps
         hoodAngle = hoodmap.get(filter.calculate(distance));
         shooterSpeed = shootmap.get(shootfilter.calculate(distance));
@@ -337,7 +354,7 @@ public boolean turretInPosition(){
 
        // turretRotate.set(angle);
       }
- 
+
 
     // public void rotateturretleft(double angle) {
     //     turretRotate.set(angle+5);

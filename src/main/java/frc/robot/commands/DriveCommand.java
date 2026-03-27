@@ -84,10 +84,10 @@ public class DriveCommand extends Command {
 
     if(mController2.rightBumper().getAsBoolean())
     {
-      driveFactor=0.1;
+      driveFactor = 0.15;
     }
     else{
-      driveFactor=0.8;
+      driveFactor = 0.8;
     }
     SmartDashboard.putNumber("SwerveAngle", mSwerve.getRotation());
      //   SmartDashboard.putNumber("DriveDirection", Math.toDegrees(driveDirection));
@@ -108,15 +108,19 @@ public class DriveCommand extends Command {
     // SmartDashboard.putNumber("Elejiojovatpr level",
     // ElevatorSubsystem.elevatorLevel);
 
-    // rumble when 20 seconds left
-    if (DriverStation.isTeleop() && (DriverStation.getMatchTime() < 30.0) && (DriverStation.getMatchTime() > 19.0)) {
+    // rumble when endgame
+    if (DriverStation.isTeleop() && (DriverStation.getMatchTime() < 31.0) && (DriverStation.getMatchTime() > 29.0)) {
       mController.setRumble(RumbleType.kLeftRumble, 1);
       mController.setRumble(RumbleType.kRightRumble, 1);
+      mController2.setRumble(RumbleType.kLeftRumble, 1);
+      mController2.setRumble(RumbleType.kRightRumble, 1);
     } else {
       mController.setRumble(RumbleType.kLeftRumble, 0);
       mController.setRumble(RumbleType.kRightRumble, 0);
+      mController2.setRumble(RumbleType.kLeftRumble, 0);
+      mController2.setRumble(RumbleType.kRightRumble, 0);
     }
-
+    
     yVel = yHelper.setInput(yVel).applyPower(2).value;
     xVel = xHelper.setInput(xVel).applyPower(2).value;
     rotVel = rotHelper.setInput(rotVel).applyPower(3).value;
