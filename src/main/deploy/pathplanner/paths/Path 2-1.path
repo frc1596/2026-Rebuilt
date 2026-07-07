@@ -3,41 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.764,
-        "y": 2.5448517200474496
+        "x": 7.818,
+        "y": 3.438
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.764,
-        "y": 0.34997627520759167
+        "x": 7.8165,
+        "y": 2.523333333333334
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 4.224543297746146,
-        "y": 0.47908659549228905
+        "x": 5.871488888888889,
+        "y": 2.5031777777777777
       },
       "prevControl": {
-        "x": 5.7209071664769775,
-        "y": 0.4989059844821002
+        "x": 7.05058888888889,
+        "y": 2.483022222222222
       },
       "nextControl": {
-        "x": 2.599905100830368,
-        "y": 0.4575682087781741
+        "x": 4.24694552520233,
+        "y": 2.5309477498066077
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 1.8252431791221837,
-        "y": 2.673962040332148
+        "x": 2.7876888888888884,
+        "y": 2.5031777777777777
       },
       "prevControl": {
-        "x": 2.99799525504152,
-        "y": 2.706239620403322
+        "x": 3.9604409648082246,
+        "y": 2.535455357848952
       },
       "nextControl": null,
       "isLocked": false,
@@ -46,8 +46,12 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 1.0550621669626876,
-      "rotationDegrees": 0.0
+      "waypointRelativePos": 1.0385964912280783,
+      "rotationDegrees": -90.0
+    },
+    {
+      "waypointRelativePos": 1.4982456140350773,
+      "rotationDegrees": -90.0
     }
   ],
   "constraintZones": [],
@@ -63,13 +67,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -154.91640599380915
+    "rotation": -139.39870535499546
   },
   "reversed": false,
   "folder": "Path 2 South Side",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -25.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

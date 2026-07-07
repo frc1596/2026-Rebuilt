@@ -11,21 +11,15 @@
           }
         },
         {
+          "type": "path",
+          "data": {
+            "pathName": "center"
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "IntakeFuel"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Path 2-0"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Path 2-1"
+            "name": "startCamera"
           }
         },
         {
@@ -37,19 +31,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 3.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake Up"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 7.0
+            "waitTime": 10.0
           }
         },
         {

@@ -107,9 +107,10 @@ public class SwerveModuleV3 implements SwerveModule {
         .positionWrappingMaxInput(360)
         .positionWrappingMinInput(0);
 
+        mAzimuthMotor.configure(azimuthConfig,com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
         azimuthPID.enableContinuousInput(-180,180);
         // Configure azimuth PID
-        //mAzimuthPID.setFeedbackDevice(mAzimuthAbsoluteEncoder);
+        // mAzimuthPID.setFeedbackDevice(mAzimuthAbsoluteEncoder);
         // mAzimuthPID.setFeedbackDevice(mAzimuthIncrementalEncoder);
         // mAzimuthPID.setP(.05);
         // mAzimuthPID.setPositionPIDWrappingEnabled(true);
@@ -184,18 +185,18 @@ public void setTeleopDistance(){
     @Override
     public void set(SwerveModuleState drive) {
         Rotation2d current = Rotation2d.fromDegrees(mAzimuthAbsoluteEncoder.getPosition().getValueAsDouble()*360.0);
-        SwerveModuleState optimizedState = SwerveModuleState.optimize(drive, current);
-        double setpoint = optimizedState.angle.getDegrees();
-        double velocity = optimizedState.speedMetersPerSecond;
+       // SwerveModuleState optimizedState = SwerveModuleState.optimize(drive, current);
+       // double setpoint = optimizedState.angle.getDegrees();
+        //double velocity = optimizedState.speedMetersPerSecond;
         //mAzimuthPID.setReference(setpoint, ControlType.kPosition);
-        mAzimuthMotor.set(azimuthPID.calculate(current.getDegrees(), setpoint));
-        mDriveMotor.set(velocity);
+        mAzimuthMotor.set(azimuthPID.calculate(current.getDegrees(), drive.angle.getDegrees()));
+        mDriveMotor.set(drive.speedMetersPerSecond);
 
         //SmartDashboard.putNumber("CurrentOutputManualVeloctiy", velocity);
         //SmartDashboard.putNumber(mName + "Angle", current.getDegrees());
     }
 
-        public void setAuto(SwerveModuleState drive) {
+    public void setAuto(SwerveModuleState drive) {
         Rotation2d current = Rotation2d.fromDegrees(mAzimuthAbsoluteEncoder.getPosition().getValueAsDouble()*360.0);
         SwerveModuleState optimizedState = SwerveModuleState.optimize(drive, current);
         double setpoint = optimizedState.angle.getDegrees();

@@ -70,9 +70,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
   //corners are done like a graph. Positive x,y in quadrant 1, and so on
   private final SwerveModuleV3 Module1 = new SwerveModuleV3(mAzimuth1, mDriveMotor1, new Translation2d(-0.352425, 0.200025), "Module 1", mAzimuthEncoder1);
-  private final SwerveModuleV3 Module2 = new SwerveModuleV3(mAzimuth2, mDriveMotor2, new Translation2d(0.352425, 0.200025), "Module 2", mAzimuthEncoder2);
+  private final SwerveModuleV3 Module2 = new SwerveModuleV3(mAzimuth2, mDriveMotor2, new Translation2d(-0.352425, -0.200025), "Module 2", mAzimuthEncoder2);
   private final SwerveModuleV3 Module3 = new SwerveModuleV3(mAzimuth3, mDriveMotor3, new Translation2d(0.352425, -0.200025), "Module 3", mAzimuthEncoder3);
-  private final SwerveModuleV3 Module4 = new SwerveModuleV3(mAzimuth4, mDriveMotor4, new Translation2d(-0.352425,  -0.200025), "Module 4", mAzimuthEncoder4);
+  private final SwerveModuleV3 Module4 = new SwerveModuleV3(mAzimuth4, mDriveMotor4, new Translation2d(0.352425,  0.200025), "Module 4", mAzimuthEncoder4);
 
   //auto align stuff
 //  private PIDController xController = new PIDController(0.3, 0, 0.0); // left right
