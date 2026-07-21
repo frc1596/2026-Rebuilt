@@ -61,7 +61,7 @@ public class SwerveDrive {
     public static final Transform3d kRobotToCam =
     new Transform3d(new Translation3d( -16.25/39.37,-4.75/39.37, 0.267), new Rotation3d(Math.toRadians(0), Math.toRadians(62),Math.toRadians(180)));
      public static final Transform3d kRobotToCam2 =
-    new Transform3d(new Translation3d(-13.5/39.37, -7.75/39.37, 0.267), new Rotation3d(Math.toRadians(0), Math.toRadians(62), Math.toRadians(270)));
+    new Transform3d(new Translation3d(-13.5/39.37, -7.75/39.37, 0.267), new Rotation3d(Math.toRadians(0), Math.toRadians(62), Math.toRadians(270)));// 90?
 
     //8.5,2
     public SwerveDrive(DoubleSupplier gyroAngle, SwerveModule... modules){
@@ -91,49 +91,58 @@ public class SwerveDrive {
             states[i] = mModules[i].getPosition();
         }
 
-        mSwerveDrivePoseEstimator = new SwerveDrivePoseEstimator(mKinematics, Rotation2d.fromDegrees(mGyroAngle.getAsDouble()), states, new Pose2d(), VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(360)));
+        mSwerveDrivePoseEstimator = new SwerveDrivePoseEstimator(mKinematics, Rotation2d.fromDegrees(mGyroAngle.getAsDouble()), states, new Pose2d(), VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(360)));
 
         Arrays.stream(mModules).forEach(SwerveModule::init);
     }
 
+private double lastCamera1Timestamp = -1;
+private double lastCamera2Timestamp = -1;
+
     public void periodic(){
+
         SwerveModulePosition[] states = new SwerveModulePosition[numModules];
+       
         for (int i = 0; i < numModules; i++) {
             states[i] = mModules[i].getPosition();
         }
-//photonEstimator.setRobotToCameraTransform(kRobotToCam);
+
         mSwerveDrivePoseEstimator.update(Rotation2d.fromDegrees(mGyroAngle.getAsDouble()), states);
 
         var result1 = camera1.getLatestResult();
-        var target = result1.getBestTarget();
+        if (!result1.getTargets().isEmpty() && result1.getTimestampSeconds() != lastCamera1Timestamp) {
+       
+            var target = result1.getBestTarget();
 
         // Calculate robot's field relative pose
-        if((target != null) && DriverStation.isTeleopEnabled() && (target.getPoseAmbiguity() < 0.2)){
-                SmartDashboard.putBoolean("Camera1 is on", true);
+        if( DriverStation.isTeleopEnabled() && (target.getPoseAmbiguity() < 0.2)){
+                 var tagPose = kTagLayout.getTagPose(target.getFiducialId());
 
-            if (kTagLayout.getTagPose(target.getFiducialId()).isPresent()) {
+            if (tagPose.isPresent()) {
 
-                Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), kTagLayout.getTagPose(target.getFiducialId()).get(), kRobotToCam);
+                Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target.getBestCameraToTarget(), tagPose.get(), kRobotToCam);
                 Pose2d robot2dpose = robotPose.toPose2d();
                  mSwerveDrivePoseEstimator.addVisionMeasurement(robot2dpose, result1.getTimestampSeconds());
-            }
-        }else{
-                        SmartDashboard.putBoolean("Camera1 is on", false);
+                lastCamera1Timestamp = result1.getTimestampSeconds();
 
+            }
         }
+    }
 
         var result2 = camera2.getLatestResult();
-        var target2 = result2.getBestTarget();
-        if((target2 != null) && DriverStation.isTeleopEnabled() && (target2.getPoseAmbiguity() < 0.2)){
+        if (!result2.getTargets().isEmpty() && result2.getTimestampSeconds() != lastCamera2Timestamp) {
+            var target2 = result2.getBestTarget();
+        if(DriverStation.isTeleopEnabled() && (target2.getPoseAmbiguity() < 0.2)){
+                var tagPose = kTagLayout.getTagPose(target2.getFiducialId());
         // Calculate robot's field relative pose
-            if (kTagLayout.getTagPose(target2.getFiducialId()).isPresent()) {
-                Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target2.getBestCameraToTarget(), kTagLayout.getTagPose(target2.getFiducialId()).get(), kRobotToCam);
+            if (tagPose.isPresent()) {
+                Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target2.getBestCameraToTarget(), tagPose.get(), kRobotToCam);
                 Pose2d robot2dpose = robotPose.toPose2d();
                 mSwerveDrivePoseEstimator.addVisionMeasurement(robot2dpose, result2.getTimestampSeconds());
 
             }
         }
-
+        }
         SmartDashboard.putNumber("GyroAngle", mGyroAngle.getAsDouble());
 
     }

@@ -91,12 +91,12 @@ public class ShooterSubsystem extends SubsystemBase {
     LinearFilter shootfilter = LinearFilter.movingAverage(5);
    // LinearFilter rotatefilter = LinearFilter.movingAverage(5);
     // private final VisionSubsytem vision;
- private final Constraints limelight_rotateprofile = new Constraints(.05, 0);
- private ProfiledPIDController limelightautoaimController = new ProfiledPIDController(0.015, 0, 0, limelight_rotateprofile);
+
+ //private final Constraints limelight_rotateprofile = new Constraints(.05, 0);
+ //private ProfiledPIDController limelightautoaimController = new ProfiledPIDController(0.015, 0, 0, limelight_rotateprofile);
 
     private static InterpolatingDoubleTreeMap hoodmap = new InterpolatingDoubleTreeMap();
      private static InterpolatingDoubleTreeMap shootmap = new InterpolatingDoubleTreeMap();
-     private static InterpolatingDoubleTreeMap tof = new InterpolatingDoubleTreeMap();
 
       Transform2d shootertransform = new Transform2d(9.375/39.37, 3.5/39.37, Rotation2d.fromDegrees(180));
 
@@ -124,14 +124,11 @@ public class ShooterSubsystem extends SubsystemBase {
         shootmap.put(1.0,45.0);// ~15 ft
         shootmap.put(0.0,30.0);// ~15 ft
 
-        tof.put(0.0, 0.8);
-        tof.put(4.5, 2.0);
-
         moperatorController = operatorController;
-       /// mvision = vision;
+
         mSwerve = swerve; 
         mField = Field1;
-        // this.vision = vision;
+
         SparkMaxConfig spindexterConfig = new SparkMaxConfig();
         SparkMaxConfig turretHoodConfig = new SparkMaxConfig();
         SparkMaxConfig turretRotateConfig = new SparkMaxConfig();
@@ -178,7 +175,7 @@ public class ShooterSubsystem extends SubsystemBase {
         feeder.getConfigurator().apply(feederConfig, 0.05);
 
         TalonFXConfiguration shootoneConfig = new TalonFXConfiguration();
-        shootoneConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        shootoneConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         shootoneConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         shootoneConfig.CurrentLimits.SupplyCurrentLimit = 60;
         shootoneConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
@@ -191,7 +188,7 @@ public class ShooterSubsystem extends SubsystemBase {
         shootOne.getConfigurator().apply(shootoneConfig, 0.05);
 
         TalonFXConfiguration shoottwoConfig = new TalonFXConfiguration();
-        shoottwoConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
+        shoottwoConfig.MotorOutput.NeutralMode = NeutralModeValue.Coast;
         shoottwoConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
         shoottwoConfig.CurrentLimits.SupplyCurrentLimit = 60;
         shoottwoConfig.CurrentLimits.SupplyCurrentLowerTime = 1;
@@ -199,8 +196,8 @@ public class ShooterSubsystem extends SubsystemBase {
         shoottwoConfig.MotorOutput.Inverted = InvertedValue.Clockwise_Positive;
         shoottwoConfig.Slot0.kV = .11;
         shoottwoConfig.Slot0.kP = .36;
-        shoottwoConfig.Slot0.kI = 0;
         shoottwoConfig.Slot0.kS = 0.14;
+        shoottwoConfig.Slot0.kI = 0;
         shoottwoConfig.Slot0.kD = 0;
         shootTwo.getConfigurator().apply(shoottwoConfig, 0.05);
     }
@@ -211,7 +208,6 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-
 
         double hoodAngle = 0;
         double shooterSpeed = 0;
@@ -267,20 +263,20 @@ public class ShooterSubsystem extends SubsystemBase {
          turretAngle = (-shootangle - 90.0 + mSwerve.mSwerveDrive.mSwerveDrivePoseEstimator.getEstimatedPosition().getRotation().getDegrees());
 
 //if left trigger pressed, use the limelight (needs tuning)
-    if(moperatorController.leftTrigger(0.5).getAsBoolean() && !moperatorController.leftBumper().getAsBoolean()){
-        Pose3d limelightposition = LimelightHelpers.getCameraPose3d_TargetSpace("limelight");
-        limelightautoaimController.setGoal(0);
-        limelightautoaimController.calculate(LimelightHelpers.getTX("limelight"));
+    // if(moperatorController.leftTrigger(0.5).getAsBoolean() && !moperatorController.leftBumper().getAsBoolean()){
+    //     Pose3d limelightposition = LimelightHelpers.getCameraPose3d_TargetSpace("limelight");
+    //     limelightautoaimController.setGoal(0);
+    //     limelightautoaimController.calculate(LimelightHelpers.getTX("limelight"));
 
-        //if Limelight has a valid target,
-        if(LimelightHelpers.getTV("limelight")){
-            distance = Math.sqrt(limelightposition.getZ()*limelightposition.getZ()+limelightposition.getX()*limelightposition.getX());
-        }
-    double limelightOutput = limelightautoaimController.calculate(LimelightHelpers.getTX("limelight"));
-    rotateTurret(mrotateencoder.getPosition()+limelightOutput);
-    }else{
+    //     //if Limelight has a valid target,
+    //     if(LimelightHelpers.getTV("limelight")){
+    //         distance = Math.sqrt(limelightposition.getZ()*limelightposition.getZ()+limelightposition.getX()*limelightposition.getX());
+    //     }
+    // double limelightOutput = limelightautoaimController.calculate(LimelightHelpers.getTX("limelight"));
+    // rotateTurret(mrotateencoder.getPosition()+limelightOutput);
+    // }else{
         rotateTurret(Math.toDegrees(MathUtil.angleModulus(-Math.toRadians(turretAngle))));
-    }
+    //}
         //lookup maps
         hoodAngle = hoodmap.get(filter.calculate(distance));
         shooterSpeed = shootmap.get(shootfilter.calculate(distance));
@@ -288,20 +284,20 @@ public class ShooterSubsystem extends SubsystemBase {
         //Pid update and send to sparkmax
         m_hoodsetpoint = m_pivotProfile.calculate(.02, m_hoodsetpoint, m_hoodGoal);
         m_rotatesetpoint = m_rotateprofile.calculate(.02, m_rotatesetpoint, m_rotategoal);
-        mHoodPID.setReference(m_hoodsetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
-        mrotatePID.setReference(m_rotatesetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
+        mHoodPID.setSetpoint(m_hoodsetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
+        mrotatePID.setSetpoint(m_rotatesetpoint.position, com.revrobotics.spark.SparkBase.ControlType.kPosition); 
 
         //Operator Controls
         if (moperatorController.rightBumper().getAsBoolean() || (inAuto == true)) {
             setHoodAngle(hoodAngle);
 
-            if (getShootOneSpeed() == 0.0 && getShootTwoSpeed() == 0.0){
-                setShootSpeed(shooterSpeed); // start the shooter
-            } else if (Math.abs(getShootOneSpeed()) > (shooterSpeed-3.0)){
+           if (Math.abs(getShootOneSpeed()) > (shooterSpeed-3.0)){
                 setSpindexterSpeed(-1.0); // start everything else
                 setFeederSpeed(1.0);
                 setShootSpeed(shooterSpeed); // start the shooter
-            } 
+            } else{
+                setShootSpeed(shooterSpeed); // start the shooter
+            }
         }
         //pass button 
         else if (moperatorController.leftBumper().getAsBoolean()) {
@@ -318,8 +314,6 @@ public class ShooterSubsystem extends SubsystemBase {
                 setShootSpeed(0);
         }
 
-
-
     }
     
 
@@ -329,7 +323,11 @@ public class ShooterSubsystem extends SubsystemBase {
     }
 
     public void stopshoot() {
-        setShootSpeed(0);
+       // setShootSpeed(0);
+        shootOne.setNeutralMode(NeutralModeValue.Coast);
+        shootOne.disable();;
+        shootTwo.setNeutralMode(NeutralModeValue.Coast);
+        shootTwo.disable();;
     }
 
     public void setSpindexterSpeed(double speed) {
@@ -339,19 +337,22 @@ public class ShooterSubsystem extends SubsystemBase {
     public void doNothing() {
 
     }
-public boolean turretInPosition(){
 
-            return Math.abs(m_rotatesetpoint.position - m_rotategoal.position) < 2.0;
+    public boolean turretInPosition(){
 
-}
-      public void manualrotateTurret(double angle) {
+        return Math.abs(m_rotatesetpoint.position - m_rotategoal.position) < 2.0;
 
-       turretRotate.set(angle);
-      }
+    }
+      
+    public void manualrotateTurret(double angle) {
+
+        turretRotate.set(angle);
+
+    }
 
     public void rotateTurret(double angle) {
-        m_rotategoal = new TrapezoidProfile.State(angle, 0);  
 
+        m_rotategoal = new TrapezoidProfile.State(angle, 0);  
        // turretRotate.set(angle);
       }
 

@@ -364,8 +364,8 @@ Trigger manualUp = operatorController.y();
     //    manualUp.onTrue(intake.manualPivot(-1));
 
     startIntake.whileTrue(intake.startFuelIntakeCmd(1.0));
-    intakeUp.whileTrue(intake.intakePivot(3.1)); 
-    intakeDown.whileTrue(intake.intakePivot(14.5));//.alongWith(intake.startFuelIntakeCmd(-0.2)));
+    intakeUp.whileTrue(intake.intakePivot(0)); 
+    intakeDown.whileTrue(intake.intakePivot(8));//.alongWith(intake.startFuelIntakeCmd(-0.2)));
 reverseIntake.whileTrue(intake.startFuelIntakeCmd(-1.0));
     // intakeUp.whileTrue(intake.intakePivot(1-0.1)); 
     // intakeDown.whileTrue(intake.intakePivot(1-0.323));
