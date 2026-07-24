@@ -98,7 +98,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private static InterpolatingDoubleTreeMap hoodmap = new InterpolatingDoubleTreeMap();
      private static InterpolatingDoubleTreeMap shootmap = new InterpolatingDoubleTreeMap();
 
-      Transform2d shootertransform = new Transform2d(9.375/39.37, 3.5/39.37, Rotation2d.fromDegrees(180));
+      Transform2d shootertransform = new Transform2d(9.375/39.37, 3.5/39.37, Rotation2d.fromDegrees(90));
 
      CommandXboxController moperatorController;
      VisionSubsytem mvision;
@@ -157,7 +157,7 @@ public class ShooterSubsystem extends SubsystemBase {
         turretRotateConfig.closedLoop.feedbackSensor(FeedbackSensor.kPrimaryEncoder).pidf(0.12,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
   //  turretRotateConfig.closedLoop.allowedClosedLoopError(1.0, ClosedLoopSlot.kSlot0);
 
-        turretRotateConfig.idleMode(IdleMode.kBrake);
+        turretRotateConfig.idleMode(IdleMode.kCoast);
         turretRotateConfig.encoder.positionConversionFactor((24.0/115.0)*(1.0/9.0)*360);//degrees
         turretRotateConfig.encoder.velocityConversionFactor((24.0/115.0)*(1.0/9.0)*360);//degrees per minute
         turretRotateConfig.smartCurrentLimit(40);
@@ -213,7 +213,7 @@ public class ShooterSubsystem extends SubsystemBase {
         double shooterSpeed = 0;
 
         Pose2d swervexy = mSwerve.mSwerveDrive.getPose();
-        Pose2d turretxy = swervexy.transformBy(shootertransform);
+        Pose2d turretxy = swervexy;//.transformBy(shootertransform);
 
         double turretAngle;
         double shootangle = 0;
@@ -228,34 +228,41 @@ public class ShooterSubsystem extends SubsystemBase {
             if(moperatorController.leftBumper().getAsBoolean()){ //if pass
                 if(alliance.get() == DriverStation.Alliance.Red){
                     if(turretxy.getY() < Field.redHubCenter.getY()){
-                        distance = mField.feedRedLeft.getDistance(turretxy.getTranslation());
-                        shootangle = mField.feedRedLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
+                        distance = Field.feedRedLeft.getDistance(turretxy.getTranslation());
+                        shootangle = Field.feedRedLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
                     }else{
-                        distance = mField.feedRedRight.getDistance(turretxy.getTranslation());
-                        shootangle = mField.feedRedRight.minus(turretxy.getTranslation()).getAngle().getDegrees();
+                        distance = Field.feedRedRight.getDistance(turretxy.getTranslation());
+                        shootangle = Field.feedRedRight.minus(turretxy.getTranslation()).getAngle().getDegrees();
                     }
                 }else{
                     if(turretxy.getY() > Field.blueHubCenter.getY()){
-                        distance = mField.feedBlueLeft.getDistance(turretxy.getTranslation());
-                        shootangle = mField.feedBlueLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
+                        distance = Field.feedBlueLeft.getDistance(turretxy.getTranslation());
+                        shootangle = Field.feedBlueLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
                     }else{
-                        distance = mField.feedBlueRight.getDistance(turretxy.getTranslation());
-                        shootangle = mField.feedBlueRight.minus(turretxy.getTranslation()).getAngle().getDegrees();
+                        distance = Field.feedBlueRight.getDistance(turretxy.getTranslation());
+                        shootangle = Field.feedBlueRight.minus(turretxy.getTranslation()).getAngle().getDegrees();
                     }
                 }
             }
             else if(alliance.get() == DriverStation.Alliance.Red){
                 //aim for red hub if on red alliance
-                distance = mField.redHubCenter.toTranslation2d().getDistance(turretxy.getTranslation());
-                shootangle = mField.redHubCenter.toTranslation2d().minus(turretxy.getTranslation()).getAngle().getDegrees();       
+                distance = Field.redHubCenter.toTranslation2d().getDistance(turretxy.getTranslation());
+                shootangle = Field.redHubCenter.toTranslation2d().minus(turretxy.getTranslation()).getAngle().getDegrees();       
             }else {
                 //aim for blue hub if on blue alliance
-                distance = mField.blueHubCenter.toTranslation2d().getDistance(turretxy.getTranslation());
-                shootangle = mField.blueHubCenter.toTranslation2d().minus(turretxy.getTranslation()).getAngle().getDegrees();
+                distance = Field.blueHubCenter.toTranslation2d().getDistance(turretxy.getTranslation());
+                shootangle = Field.blueHubCenter.toTranslation2d().minus(turretxy.getTranslation()).getAngle().getDegrees();
             }
         }
 
+        SmartDashboard.putNumber("HubX", Field.redHubCenter.toTranslation2d().getX());
+        SmartDashboard.putNumber("HubY", Field.redHubCenter.toTranslation2d().getY());
+        SmartDashboard.putNumber("Shootangle", shootangle);
+        SmartDashboard.putNumber("Shootangle", shootangle);
+SmartDashboard.putNumber("ShooterSpeed", getShootOneSpeed());
+
         SmartDashboard.putNumber("Hubdistance", distance);
+        SmartDashboard.putNumber("Shootangle", shootangle);
 
         //SWAP BACK IF NEEDED
         //calculate and set turret angle
@@ -291,7 +298,7 @@ public class ShooterSubsystem extends SubsystemBase {
         if (moperatorController.rightBumper().getAsBoolean() || (inAuto == true)) {
             setHoodAngle(hoodAngle);
 
-           if (Math.abs(getShootOneSpeed()) > (shooterSpeed-3.0)){
+           if (Math.abs(getShootOneSpeed()) > (shooterSpeed-4.0)){
                 setSpindexterSpeed(-1.0); // start everything else
                 setFeederSpeed(1.0);
                 setShootSpeed(shooterSpeed); // start the shooter
@@ -302,7 +309,7 @@ public class ShooterSubsystem extends SubsystemBase {
         //pass button 
         else if (moperatorController.leftBumper().getAsBoolean()) {
             setShootSpeed(shooterSpeed); // start the shooter
-            if (Math.abs(getShootOneSpeed()) > (shooterSpeed-3.0)){
+            if (Math.abs(getShootOneSpeed()) > (shooterSpeed-4.0)){
                 setSpindexterSpeed(-1.0); // start everything else
                 setFeederSpeed(1.0);
                 setShootSpeed(shooterSpeed); // start the shooter

@@ -59,9 +59,9 @@ public class SwerveDrive {
     public static final AprilTagFieldLayout kTagLayout =
                 AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
     public static final Transform3d kRobotToCam =
-    new Transform3d(new Translation3d( -16.25/39.37,-4.75/39.37, 0.267), new Rotation3d(Math.toRadians(0), Math.toRadians(62),Math.toRadians(180)));
+    new Transform3d(new Translation3d( -16.25/39.37,-4.75/39.37, 0.267), new Rotation3d(Math.toRadians(0), Math.toRadians(-28),Math.toRadians(0)));
      public static final Transform3d kRobotToCam2 =
-    new Transform3d(new Translation3d(-13.5/39.37, -7.75/39.37, 0.267), new Rotation3d(Math.toRadians(0), Math.toRadians(62), Math.toRadians(270)));// 90?
+    new Transform3d(new Translation3d(-13.5/39.37, -7.75/39.37, 0.267), new Rotation3d(Math.toRadians(0), Math.toRadians(-28), Math.toRadians(90)));// 90?
 
     //8.5,2
     public SwerveDrive(DoubleSupplier gyroAngle, SwerveModule... modules){
@@ -91,7 +91,7 @@ public class SwerveDrive {
             states[i] = mModules[i].getPosition();
         }
 
-        mSwerveDrivePoseEstimator = new SwerveDrivePoseEstimator(mKinematics, Rotation2d.fromDegrees(mGyroAngle.getAsDouble()), states, new Pose2d(), VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(360)));
+        mSwerveDrivePoseEstimator = new SwerveDrivePoseEstimator(mKinematics, Rotation2d.fromDegrees(mGyroAngle.getAsDouble()), states, new Pose2d(), VecBuilder.fill(.2, .2, Units.degreesToRadians(2)),VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(1)));
 
         Arrays.stream(mModules).forEach(SwerveModule::init);
     }
@@ -136,9 +136,10 @@ private double lastCamera2Timestamp = -1;
                 var tagPose = kTagLayout.getTagPose(target2.getFiducialId());
         // Calculate robot's field relative pose
             if (tagPose.isPresent()) {
-                Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target2.getBestCameraToTarget(), tagPose.get(), kRobotToCam);
+                Pose3d robotPose = PhotonUtils.estimateFieldToRobotAprilTag(target2.getBestCameraToTarget(), tagPose.get(), kRobotToCam2);
                 Pose2d robot2dpose = robotPose.toPose2d();
                 mSwerveDrivePoseEstimator.addVisionMeasurement(robot2dpose, result2.getTimestampSeconds());
+                lastCamera2Timestamp = result2.getTimestampSeconds();
 
             }
         }

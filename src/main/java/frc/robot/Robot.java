@@ -108,8 +108,8 @@ private int m_rainbowFirstPixelHue=90;
     //Named commands for the pathplanner auto
 
     NamedCommands.registerCommand("IntakeFuel", intake.startFuelIntakeCmdAuto(1.0));
-    NamedCommands.registerCommand("Intake Down", intake.intakePivot(13.8));
-    NamedCommands.registerCommand("Intake Up", intake.intakePivot(3.2));
+    NamedCommands.registerCommand("Intake Down", intake.intakePivot(-11));
+    NamedCommands.registerCommand("Intake Up", intake.intakePivot(-1));
 NamedCommands.registerCommand("startShoot", shooter.startShoot());
 NamedCommands.registerCommand("stopShoot", shooter.stopShoot());
 
@@ -248,8 +248,8 @@ if (("R".equals(gameMsg) && (alliance == Alliance.Blue)) || ("B".equals(gameMsg)
     if ((matchTime < 160 && matchTime > 140) ||
         (matchTime < 140 && matchTime > 130) ||
         (matchTime < 130 && matchTime > 105) ||
-        (matchTime < 80 && matchTime > 55) ||
-        (matchTime < 30)) {
+        (matchTime < 80 && matchTime > 55) 
+        ) {
         
         shouldBeOn = true;
     }
@@ -257,11 +257,16 @@ if (("R".equals(gameMsg) && (alliance == Alliance.Blue)) || ("B".equals(gameMsg)
       if ((matchTime < 160 && matchTime > 140) ||
         (matchTime < 140 && matchTime > 130) ||
         (matchTime < 105 && matchTime > 80) ||
-        (matchTime < 55 && matchTime > 30) ||
-        (matchTime < 30)) {
+        (matchTime < 55 && matchTime > 30) 
+        ) {
         
         shouldBeOn = true;
     }
+}{
+  if((matchTime < 30)
+  ){
+    rainbow();
+  }
 }
 }
 
@@ -364,8 +369,8 @@ Trigger manualUp = operatorController.y();
     //    manualUp.onTrue(intake.manualPivot(-1));
 
     startIntake.whileTrue(intake.startFuelIntakeCmd(1.0));
-    intakeUp.whileTrue(intake.intakePivot(0)); 
-    intakeDown.whileTrue(intake.intakePivot(8));//.alongWith(intake.startFuelIntakeCmd(-0.2)));
+    intakeUp.whileTrue(intake.intakePivot(-1)); 
+    intakeDown.whileTrue(intake.intakePivot(-11));//.alongWith(intake.startFuelIntakeCmd(-0.2)));
 reverseIntake.whileTrue(intake.startFuelIntakeCmd(-1.0));
     // intakeUp.whileTrue(intake.intakePivot(1-0.1)); 
     // intakeDown.whileTrue(intake.intakePivot(1-0.323));
