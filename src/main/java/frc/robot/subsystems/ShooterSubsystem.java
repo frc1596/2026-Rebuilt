@@ -98,7 +98,7 @@ public class ShooterSubsystem extends SubsystemBase {
     private static InterpolatingDoubleTreeMap hoodmap = new InterpolatingDoubleTreeMap();
      private static InterpolatingDoubleTreeMap shootmap = new InterpolatingDoubleTreeMap();
 
-      Transform2d shootertransform = new Transform2d(9.375/39.37, 3.5/39.37, Rotation2d.fromDegrees(90));
+      Transform2d shootertransform = new Transform2d(8.375/39.37, 3.5/39.37, Rotation2d.fromDegrees(90));
 
      CommandXboxController moperatorController;
      VisionSubsytem mvision;
@@ -213,7 +213,7 @@ public class ShooterSubsystem extends SubsystemBase {
         double shooterSpeed = 0;
 
         Pose2d swervexy = mSwerve.mSwerveDrive.getPose();
-        Pose2d turretxy = swervexy;//.transformBy(shootertransform);
+        Pose2d turretxy = swervexy.transformBy(shootertransform);
 
         double turretAngle;
         double shootangle = 0;
@@ -287,7 +287,8 @@ SmartDashboard.putNumber("ShooterSpeed", getShootOneSpeed());
         //lookup maps
         hoodAngle = hoodmap.get(filter.calculate(distance));
         shooterSpeed = shootmap.get(shootfilter.calculate(distance));
-        
+        SmartDashboard.putNumber("DesiredShooterSpeed", shooterSpeed);
+
         //Pid update and send to sparkmax
         m_hoodsetpoint = m_pivotProfile.calculate(.02, m_hoodsetpoint, m_hoodGoal);
         m_rotatesetpoint = m_rotateprofile.calculate(.02, m_rotatesetpoint, m_rotategoal);

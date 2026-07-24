@@ -59,9 +59,9 @@ public class SwerveDrive {
     public static final AprilTagFieldLayout kTagLayout =
                 AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
     public static final Transform3d kRobotToCam =
-    new Transform3d(new Translation3d( -16.25/39.37,-4.75/39.37, 0.267), new Rotation3d(Math.toRadians(0), Math.toRadians(-28),Math.toRadians(0)));
+    new Transform3d(new Translation3d( -13.75/39.37,-11.625/39.37, 0.192), new Rotation3d(Math.toRadians(0), Math.toRadians(-28),Math.toRadians(0)));
      public static final Transform3d kRobotToCam2 =
-    new Transform3d(new Translation3d(-13.5/39.37, -7.75/39.37, 0.267), new Rotation3d(Math.toRadians(0), Math.toRadians(-28), Math.toRadians(90)));// 90?
+    new Transform3d(new Translation3d(-8.75/39.37, -16.5/39.37,  0.192), new Rotation3d(Math.toRadians(0), Math.toRadians(-28), Math.toRadians(90)));// 90?
 
     //8.5,2
     public SwerveDrive(DoubleSupplier gyroAngle, SwerveModule... modules){
