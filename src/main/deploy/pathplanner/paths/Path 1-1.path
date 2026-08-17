@@ -51,13 +51,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 124.75591255354144
+    "rotation": 145.96978322267492
   },
   "reversed": false,
   "folder": "Path 1 North Side",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -3.8440588609229884
+    "rotation": 180.0
   },
   "useDefaultConstraints": false
 }

@@ -92,13 +92,13 @@ public class ShooterSubsystem extends SubsystemBase {
    // LinearFilter rotatefilter = LinearFilter.movingAverage(5);
     // private final VisionSubsytem vision;
 
- //private final Constraints limelight_rotateprofile = new Constraints(.05, 0);
- //private ProfiledPIDController limelightautoaimController = new ProfiledPIDController(0.015, 0, 0, limelight_rotateprofile);
+ private final Constraints limelight_rotateprofile = new Constraints(1, 1);
+ private ProfiledPIDController limelightautoaimController = new ProfiledPIDController(0.1, 0, 0, limelight_rotateprofile);
 
     private static InterpolatingDoubleTreeMap hoodmap = new InterpolatingDoubleTreeMap();
      private static InterpolatingDoubleTreeMap shootmap = new InterpolatingDoubleTreeMap();
 
-      Transform2d shootertransform = new Transform2d(8.375/39.37, 3.5/39.37, Rotation2d.fromDegrees(90));
+      Transform2d shootertransform = new Transform2d(9.375/39.37, 3.5/39.37, Rotation2d.fromDegrees(180));
 
      CommandXboxController moperatorController;
      VisionSubsytem mvision;
@@ -106,23 +106,22 @@ public class ShooterSubsystem extends SubsystemBase {
      Field mField;
 
      public ShooterSubsystem(CommandXboxController operatorController, SwerveSubsystem swerve,Field Field1) {
-        hoodmap.put(5.5,3.0);// ~6 ft
-        hoodmap.put(5.0, 2.5);// ~9ft
-        hoodmap.put(4.0, 2.0);// ~12 ft
-        hoodmap.put(3.0,1.5);// ~15 ft
-        hoodmap.put(2.0,1.1);// ~15 ft
-        hoodmap.put(1.0,0.0);// ~15 ft
+
+        hoodmap.put(4.5,3.0);// ~6 ft
+        hoodmap.put(4.0, 2.5);// ~9ft
+        hoodmap.put(3.0, 2.0);// ~12 ft
+        hoodmap.put(2.4, 1.4);
+        hoodmap.put(2.0,1.2);// ~15 ft
+        hoodmap.put(1.0,1.0);// ~15 ft
         hoodmap.put(0.0,0.0);// ~15 ft
 
-        shootmap.put(12.0,100.0);
-        shootmap.put(7.0,80.0);
-        shootmap.put(5.5, 68.0);// ~9ft
-        shootmap.put(5.0, 63.0);// ~9ft
-        shootmap.put(4.0, 57.0);// ~12 ft good
-        shootmap.put(3.0,53.0);// ~15 ft
-        shootmap.put(2.0,45.0);// ~15 ft
+        shootmap.put(4.5, 64.0);// ~9ft
+        shootmap.put(4.0, 61.0);// ~9ft
+        shootmap.put(3.0, 60.0);// ~12 ft
+        shootmap.put(2.4, 55.0);
+        shootmap.put(2.0,50.0);// ~15 ft
         shootmap.put(1.0,45.0);// ~15 ft
-        shootmap.put(0.0,30.0);// ~15 ft
+        shootmap.put(0.0,40.0);// ~15 ft
 
         moperatorController = operatorController;
 
@@ -228,41 +227,35 @@ public class ShooterSubsystem extends SubsystemBase {
             if(moperatorController.leftBumper().getAsBoolean()){ //if pass
                 if(alliance.get() == DriverStation.Alliance.Red){
                     if(turretxy.getY() < Field.redHubCenter.getY()){
-                        distance = Field.feedRedLeft.getDistance(turretxy.getTranslation());
-                        shootangle = Field.feedRedLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
+                        distance = mField.feedRedLeft.getDistance(turretxy.getTranslation());
+                        shootangle = mField.feedRedLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
                     }else{
-                        distance = Field.feedRedRight.getDistance(turretxy.getTranslation());
-                        shootangle = Field.feedRedRight.minus(turretxy.getTranslation()).getAngle().getDegrees();
+                        distance = mField.feedRedRight.getDistance(turretxy.getTranslation());
+                        shootangle = mField.feedRedRight.minus(turretxy.getTranslation()).getAngle().getDegrees();
                     }
                 }else{
                     if(turretxy.getY() > Field.blueHubCenter.getY()){
-                        distance = Field.feedBlueLeft.getDistance(turretxy.getTranslation());
-                        shootangle = Field.feedBlueLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
+                        distance = mField.feedBlueLeft.getDistance(turretxy.getTranslation());
+                        shootangle = mField.feedBlueLeft.minus(turretxy.getTranslation()).getAngle().getDegrees();
                     }else{
-                        distance = Field.feedBlueRight.getDistance(turretxy.getTranslation());
-                        shootangle = Field.feedBlueRight.minus(turretxy.getTranslation()).getAngle().getDegrees();
+                        distance = mField.feedBlueRight.getDistance(turretxy.getTranslation());
+                        shootangle = mField.feedBlueRight.minus(turretxy.getTranslation()).getAngle().getDegrees();
                     }
                 }
             }
             else if(alliance.get() == DriverStation.Alliance.Red){
                 //aim for red hub if on red alliance
-                distance = Field.redHubCenter.toTranslation2d().getDistance(turretxy.getTranslation());
-                shootangle = Field.redHubCenter.toTranslation2d().minus(turretxy.getTranslation()).getAngle().getDegrees();       
+                distance = mField.redHubCenter.toTranslation2d().getDistance(turretxy.getTranslation());
+                shootangle = mField.redHubCenter.toTranslation2d().minus(turretxy.getTranslation()).getAngle().getDegrees();       
             }else {
                 //aim for blue hub if on blue alliance
-                distance = Field.blueHubCenter.toTranslation2d().getDistance(turretxy.getTranslation());
-                shootangle = Field.blueHubCenter.toTranslation2d().minus(turretxy.getTranslation()).getAngle().getDegrees();
+                distance = mField.blueHubCenter.toTranslation2d().getDistance(turretxy.getTranslation());
+                shootangle = mField.blueHubCenter.toTranslation2d().minus(turretxy.getTranslation()).getAngle().getDegrees();
             }
         }
 
-        SmartDashboard.putNumber("HubX", Field.redHubCenter.toTranslation2d().getX());
-        SmartDashboard.putNumber("HubY", Field.redHubCenter.toTranslation2d().getY());
-        SmartDashboard.putNumber("Shootangle", shootangle);
-        SmartDashboard.putNumber("Shootangle", shootangle);
-SmartDashboard.putNumber("ShooterSpeed", getShootOneSpeed());
 
-        SmartDashboard.putNumber("Hubdistance", distance);
-        SmartDashboard.putNumber("Shootangle", shootangle);
+        //SmartDashboard.putNumber("Hubdistance", distance);
 
         //SWAP BACK IF NEEDED
         //calculate and set turret angle
@@ -279,16 +272,24 @@ SmartDashboard.putNumber("ShooterSpeed", getShootOneSpeed());
     //     if(LimelightHelpers.getTV("limelight")){
     //         distance = Math.sqrt(limelightposition.getZ()*limelightposition.getZ()+limelightposition.getX()*limelightposition.getX());
     //     }
-    // double limelightOutput = limelightautoaimController.calculate(LimelightHelpers.getTX("limelight"));
-    // rotateTurret(mrotateencoder.getPosition()+limelightOutput);
+   
+    double limelightOutput = limelightautoaimController.calculate(LimelightHelpers.getTX("limelight"));
+    rotateTurret(mrotateencoder.getPosition()+limelightOutput);
+    
+    
     // }else{
-        rotateTurret(Math.toDegrees(MathUtil.angleModulus(-Math.toRadians(turretAngle))));
+        //rotateTurret(Math.toDegrees(MathUtil.angleModulus(-Math.toRadians(turretAngle))));
     //}
         //lookup maps
-        hoodAngle = hoodmap.get(filter.calculate(distance));
-        shooterSpeed = shootmap.get(shootfilter.calculate(distance));
-        SmartDashboard.putNumber("DesiredShooterSpeed", shooterSpeed);
+        Pose3d position = LimelightHelpers.getCameraPose3d_TargetSpace("limelight");
+        if(LimelightHelpers.getTV("limelight")){
+            distance = Math.sqrt(position.getZ()*position.getZ()+position.getX()*position.getX());
+        }
 
+        hoodAngle = hoodmap.get(filter.calculate(distance));
+        
+        shooterSpeed = shootmap.get(shootfilter.calculate(distance));
+        
         //Pid update and send to sparkmax
         m_hoodsetpoint = m_pivotProfile.calculate(.02, m_hoodsetpoint, m_hoodGoal);
         m_rotatesetpoint = m_rotateprofile.calculate(.02, m_rotatesetpoint, m_rotategoal);
@@ -299,7 +300,7 @@ SmartDashboard.putNumber("ShooterSpeed", getShootOneSpeed());
         if (moperatorController.rightBumper().getAsBoolean() || (inAuto == true)) {
             setHoodAngle(hoodAngle);
 
-           if (Math.abs(getShootOneSpeed()) > (shooterSpeed-4.0)){
+           if (Math.abs(getShootOneSpeed()) > (shooterSpeed-5.0)){
                 setSpindexterSpeed(-1.0); // start everything else
                 setFeederSpeed(1.0);
                 setShootSpeed(shooterSpeed); // start the shooter
@@ -309,11 +310,11 @@ SmartDashboard.putNumber("ShooterSpeed", getShootOneSpeed());
         }
         //pass button 
         else if (moperatorController.leftBumper().getAsBoolean()) {
-            setShootSpeed(shooterSpeed); // start the shooter
-            if (Math.abs(getShootOneSpeed()) > (shooterSpeed-4.0)){
+            setShootSpeed(50); // start the shooter
+            if (Math.abs(getShootOneSpeed()) > (50.0-8.0)){
                 setSpindexterSpeed(-1.0); // start everything else
                 setFeederSpeed(1.0);
-                setShootSpeed(shooterSpeed); // start the shooter
+                setShootSpeed(50); // start the shooter
             }
         } else{
                 setSpindexterSpeed(0);

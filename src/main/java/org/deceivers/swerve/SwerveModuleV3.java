@@ -198,7 +198,7 @@ public void setTeleopDistance(){
 
     public void setAuto(SwerveModuleState drive) {
         Rotation2d current = Rotation2d.fromDegrees(mAzimuthAbsoluteEncoder.getPosition().getValueAsDouble()*360.0);
-        SwerveModuleState optimizedState = SwerveModuleState.optimize(drive, current);
+        SwerveModuleState optimizedState = SwerveModuleState.optimize(drive, current); //maybe needs fixed
         double setpoint = optimizedState.angle.getDegrees();
         double velocity = optimizedState.speedMetersPerSecond;
         //mAzimuthPID.setReference(setpoint, ControlType.kPosition);

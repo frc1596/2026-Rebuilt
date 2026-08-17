@@ -16,14 +16,17 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Robot;
 
 
 public class IntakeSubsystem extends SubsystemBase{
+    
     private final  SparkMax intakePivot = new SparkMax(14, MotorType.kBrushless);
     private final SparkMax intakepivothelper = new SparkMax(37, MotorType.kBrushless);
     private final  SparkMax intakeFuel = new SparkMax(13, MotorType.kBrushless);
@@ -51,9 +54,11 @@ public class IntakeSubsystem extends SubsystemBase{
  
 
     private static double kDt = 0.02;
+  private CommandXboxController moperatorController;
 
-    public IntakeSubsystem()
+    public IntakeSubsystem(CommandXboxController operatorController)
     {
+     moperatorController = operatorController;
         //intakepivitconfig
         intakePivotConfig.idleMode(IdleMode.kCoast);
        // intakePivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pidf(2.0,0,0,0); //Deprecated. Use ClosedLoopConfig.feedForward to set feedforward gains
@@ -63,7 +68,7 @@ public class IntakeSubsystem extends SubsystemBase{
         intakePivotConfig.encoder.positionConversionFactor(1); 
         intakePivotConfig.encoder.velocityConversionFactor(1); 
        // intakePivotConfig.encoder.inverted(false);
-        intakePivotConfig.smartCurrentLimit(40);
+        intakePivotConfig.smartCurrentLimit(30);
         intakePivotConfig.inverted(false); 
         intakePivot.configure(intakePivotConfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
         mIntakeEncoder = intakePivot.getEncoder();
@@ -77,7 +82,7 @@ public class IntakeSubsystem extends SubsystemBase{
 
       intakepivothelperconfig.encoder.positionConversionFactor(1); 
         intakepivothelperconfig.encoder.velocityConversionFactor(1); 
-        intakepivothelperconfig.smartCurrentLimit(40);
+        intakepivothelperconfig.smartCurrentLimit(30);
         intakepivothelperconfig.inverted(true); 
         intakepivothelper.configure(intakepivothelperconfig, com.revrobotics.ResetMode.kResetSafeParameters, com.revrobotics.PersistMode.kPersistParameters);
         mintakehelperencoder = intakepivothelper.getEncoder();
@@ -105,6 +110,16 @@ public class IntakeSubsystem extends SubsystemBase{
     @Override
     public void periodic() 
     {
+       if (moperatorController.rightBumper().getAsBoolean()){
+            double t = Timer.getFPGATimestamp() % 1.0;
+            SmartDashboard.putNumber("timer",t);
+            if (t < 0.5) {
+                setPivotAngle(-5);
+            } else {
+                    setPivotAngle(-11);
+            }
+        }
+       
         // Set point for the pivot
         m_pivotSetpoint = m_pivotProfile.calculate(kDt, m_pivotSetpoint, m_pivotGoal);
         m_pivotSetpointhelper = m_pivotProfilehelper.calculate(kDt, m_pivotSetpointhelper, m_pivotGoalhelper);
@@ -147,6 +162,27 @@ SmartDashboard.putNumber("Intake Position", mIntakeEncoder.getPosition());
     public double getFuelIntakeSpeed()
     {
         return(intakeFuel.get());
+    }
+
+   private final Timer shuffleTimer = new Timer();
+
+
+public Command starttimer() {
+    // shuffleTimer.restart();
+    return this.runOnce(()->shuffleTimer.restart());
+}
+
+
+public Command shuffle() {
+    double t = shuffleTimer.get() % 0.20;  // 200 ms cycle
+
+    if (t < 0.15) {
+        // intakePivot(-7);    // Forward for 150 ms
+        return this.run(()->intakePivot(-7));
+    } else {
+        // intakePivot(-11);   // Reverse for 50 ms
+        return this.run(()->intakePivot(-11));
+    }
     }
 
 public Command manualPivot(double angle){

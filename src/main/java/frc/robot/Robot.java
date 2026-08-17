@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -68,7 +69,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   //private final VisionSubsytem vision = new VisionSubsytem();
   private final Field Field1 = new Field();
-  private final IntakeSubsystem intake = new IntakeSubsystem();
+  private final IntakeSubsystem intake = new IntakeSubsystem(operatorController);
   private final SwerveSubsystem swerve = new SwerveSubsystem(); 
   private final ShooterSubsystem shooter = new ShooterSubsystem(operatorController, swerve, Field1);
 
@@ -109,7 +110,7 @@ private int m_rainbowFirstPixelHue=90;
 
     NamedCommands.registerCommand("IntakeFuel", intake.startFuelIntakeCmdAuto(1.0));
     NamedCommands.registerCommand("Intake Down", intake.intakePivot(-11));
-    NamedCommands.registerCommand("Intake Up", intake.intakePivot(-1));
+    NamedCommands.registerCommand("Intake Up", intake.intakePivot(-5));
 NamedCommands.registerCommand("startShoot", shooter.startShoot());
 NamedCommands.registerCommand("stopShoot", shooter.stopShoot());
 
@@ -164,19 +165,20 @@ NamedCommands.registerCommand("stopShoot", shooter.stopShoot());
     var currentAlliance = DriverStation.getAlliance();
     int redBrightness = 0;
     int blueBrightness = 0;
-    if(currentAlliance.get()== Alliance.Red){
-      redBrightness=255;
-      for (int i = 0; i < 59; i++) {
-        m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness);
-      }
+    rainbow();
+    // if(currentAlliance.get()== Alliance.Red){
+    //   redBrightness=255;
+    //   for (int i = 0; i < 59; i++) {
+    //     m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness);
+    //   }
+    // }
+    // else if(currentAlliance.get()== Alliance.Blue){
+    //   blueBrightness=255;
+    //   for (int i = 0; i < 59; i++) {
+    //     m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness);
+    //   }
     }
-    else if(currentAlliance.get()== Alliance.Blue){
-      blueBrightness=255;
-      for (int i = 0; i < 59; i++) {
-        m_ledBuffer.setRGB(i, redBrightness, 0, blueBrightness);
-      }
-    }
-  }
+  //}
     
    
   @Override
@@ -229,8 +231,11 @@ String gameMsg = DriverStation.getGameSpecificMessage();
 int redBrightness = 0;
 int blueBrightness = 0;
 boolean shouldBeOn = false;
+final Timer shuffleTimer = new Timer();
+
 
 // Safely check alliance
+
 if (allianceOpt.isPresent()) {
     var alliance = allianceOpt.get();
 
@@ -362,6 +367,8 @@ for (int i = 0; i < 59; i++) {
     Trigger blindshoot = operatorController.leftBumper();
 Trigger manualDown = operatorController.x();
 Trigger manualUp = operatorController.y();
+Trigger shuffle = operatorController.rightBumper();
+Trigger resettime = operatorController.rightBumper();
 
 
     //Commands/Bindings 
@@ -369,14 +376,20 @@ Trigger manualUp = operatorController.y();
     //    manualUp.onTrue(intake.manualPivot(-1));
 
     startIntake.whileTrue(intake.startFuelIntakeCmd(1.0));
-    intakeUp.whileTrue(intake.intakePivot(-1)); 
+    intakeUp.whileTrue(intake.intakePivot(-5)); 
     intakeDown.whileTrue(intake.intakePivot(-11));//.alongWith(intake.startFuelIntakeCmd(-0.2)));
 reverseIntake.whileTrue(intake.startFuelIntakeCmd(-1.0));
+resettime.onChange(intake.starttimer());
+shuffle.whileTrue(intake.shuffle());
+// if(operatorController.rightBumper(true)){
+//   intake.starttimer();
+//   intake.shuffle();
+}
     // intakeUp.whileTrue(intake.intakePivot(1-0.1)); 
     // intakeDown.whileTrue(intake.intakePivot(1-0.323));
     //reverseIntake.whileTrue(intake.startFuelIntakeCmd(-.5));
 
-  }
+  
   private void rainbow() {
     // For every pixel
     for (var i = 0; i < m_ledBuffer.getLength()-1; i = i + 1) {

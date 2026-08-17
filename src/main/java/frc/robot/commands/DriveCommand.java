@@ -43,7 +43,7 @@ public class DriveCommand extends Command {
   public double rotVel = 0;
 
   private boolean lastScan;
-  private double driveFactor = .8;
+  private double driveFactor = 1.0;
 
   //PhotonCamera camera;
 

@@ -91,7 +91,7 @@ public class SwerveDrive {
             states[i] = mModules[i].getPosition();
         }
 
-        mSwerveDrivePoseEstimator = new SwerveDrivePoseEstimator(mKinematics, Rotation2d.fromDegrees(mGyroAngle.getAsDouble()), states, new Pose2d(), VecBuilder.fill(.2, .2, Units.degreesToRadians(2)),VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(1)));
+        mSwerveDrivePoseEstimator = new SwerveDrivePoseEstimator(mKinematics, Rotation2d.fromDegrees(mGyroAngle.getAsDouble()), states, new Pose2d(), VecBuilder.fill(.2, .2, Units.degreesToRadians(2)),VecBuilder.fill(0.2, 0.2, Units.degreesToRadians(360)));
 
         Arrays.stream(mModules).forEach(SwerveModule::init);
     }
