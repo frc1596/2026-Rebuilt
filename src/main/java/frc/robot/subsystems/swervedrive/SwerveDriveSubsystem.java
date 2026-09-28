@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.function.DoubleSupplier;
 import swervelib.parser.SwerveParser;
@@ -23,28 +24,42 @@ import yams.mechanisms.swerve.utility.SwerveInputStream;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 
+
 import static edu.wpi.first.units.Units.*;
 
 public class SwerveDriveSubsystem extends SubsystemBase
 {
 
+
+
+
+
+
+
+
+   
   private SwerveDrive drive;
 
-  public SwerveDriveSubsystem()
-  {
+  public SwerveDriveSubsystem() {
     SmartDashboard.putData(this);
+
+    // 1. Standard configuration wrapper
     var cfg = new SwerveDriveConfig()
         .withStartingPose(new Pose2d(3, 3, Rotation2d.kZero))
-        .withSubsystem(this)
-        .withTelemetry(TelemetryVerbosity.HIGH);
-SwerveDrive swerveDrive = new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve"))
-  .createSwerveDrive(Units.feetToMeters(14.5));
-  
-    //  drive = SwerveParser.parse(new File(Filesystem.getDeployDirectory(), "swerve/base"))
-    //      .createSwerveDrive(cfg);
-    
-    //drive = new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve/base")).createSwerveDrive(cfg);
+        .withSubsystem(this);
+        
+
+    try {
+      // 2. The parser will automatically construct your navX3 from the JSON parameters
+      this.drive = new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve/base"))
+          .createSwerveDrive(cfg);
+
+    } catch (IOException e) {
+      e.printStackTrace();
+      throw new RuntimeException("YAGSL JSON files missing or unreadable!", e);
+    }
   }
+
 
   public SwerveInputStream getAngularVelocityStream(DoubleSupplier x, DoubleSupplier y, DoubleSupplier rot)
   {
@@ -104,5 +119,5 @@ SwerveDrive swerveDrive = new SwerveParser(new File(Filesystem.getDeployDirector
   {
     drive.simIterate();
   }
-}
 
+}
