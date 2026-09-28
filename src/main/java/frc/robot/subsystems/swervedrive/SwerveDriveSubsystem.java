@@ -4,6 +4,7 @@ package frc.robot.subsystems.swervedrive;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -36,9 +37,11 @@ public class SwerveDriveSubsystem extends SubsystemBase
         .withStartingPose(new Pose2d(3, 3, Rotation2d.kZero))
         .withSubsystem(this)
         .withTelemetry(TelemetryVerbosity.HIGH);
-
-     drive = SwerveParser.parse(new File(Filesystem.getDeployDirectory(), "swerve/base"))
-         .createSwerveDrive(cfg);
+SwerveDrive swerveDrive = new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve"))
+  .createSwerveDrive(Units.feetToMeters(14.5));
+  
+    //  drive = SwerveParser.parse(new File(Filesystem.getDeployDirectory(), "swerve/base"))
+    //      .createSwerveDrive(cfg);
     
     //drive = new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve/base")).createSwerveDrive(cfg);
   }
