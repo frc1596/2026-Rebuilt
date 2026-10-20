@@ -4,51 +4,50 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
-import yams.mechanisms.swerve.utility.SwerveInputStream;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.swervedrive.SwerveDriveSubsystem;
 import yams.mechanisms.swerve.utility.SwerveInputStream;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
- * little robot logic should actually be handled in the {@link Robot} periodic methods (other than the scheduler calls).
- * Instead, the structure of the robot (including subsystems, commands, and trigger mappings) should be declared here.
+ * little robot logic should actually be handled in the {@link Robot} periodic methods. Instead, the structure of the 
+ * robot (including subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer
 {
-
-  // Replace with CommandPS4Controller or CommandJoystick if needed
-  final         CommandXboxController driverXbox = new CommandXboxController(0);
-  // The robot's subsystems and commands are defined here...
-  // Establish a Sendable Chooser that will be able to be sent to the SmartDashboard, allowing selection of desired auto
+  // 1. Controller and Subsystem Setup
+  private final CommandXboxController driverXbox = new CommandXboxController(0);
+  private final SwerveDriveSubsystem swerve = new SwerveDriveSubsystem();
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
-  private final SwerveDriveSubsystem swerve               = new SwerveDriveSubsystem();
-  private final SwerveInputStream    driveAngularVelocity = swerve.getAngularVelocityStream(driverXbox::getLeftY,
-                                                                                            driverXbox::getLeftX,
-                                                                                            ()->driverXbox.getRawAxis(2))
-                                                                                                                  .withAllianceRelativeControl();
+  // 2. Properly deadbanded and inverted Input Stream
+  private final SwerveInputStream driveAngularVelocity = swerve.getAngularVelocityStream(
+      () -> MathUtil.applyDeadband(-driverXbox.getLeftY(), 0.1),  // Forward/Backward (Inverted)
+      () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), 0.1),  // Left/Right strafe (Inverted)
+      () -> MathUtil.applyDeadband(-driverXbox.getRightX(), 0.1)  // Rotation bound to Right Stick X
+  ).withAllianceRelativeControl();
+
   public RobotContainer()
   {
     configureBindings();
   }
 
   /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary predicate, or via the
-   * named factories in {@link edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
-   * {@link CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4}
-   * controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight joysticks}.
+   * Use this method to define your trigger->command mappings.
    */
   private void configureBindings()
   {
+    // Continuously execute drive logic using our input stream
     swerve.setDefaultCommand(swerve.drive(driveAngularVelocity));
-    driverXbox.button(1).whileTrue(swerve.sysIdModule("frontleft"));
+
+    // Bind your SysId characterization command to the A button (Button 1)
+    //driverXbox.a().whileTrue(swerve.sysIdModule("frontleft"));
+
+    // Bind Gyro zeroing/resetting to the Y button for quick on-field recovery
+    driverXbox.y().onTrue(swerve.zeroGyro());
   }
 
   /**
@@ -58,8 +57,6 @@ public class RobotContainer
    */
   public Command getAutonomousCommand()
   {
-    // Pass in the selected auto from the SmartDashboard as our desired autnomous commmand
     return autoChooser.getSelected();
   }
-
 }
